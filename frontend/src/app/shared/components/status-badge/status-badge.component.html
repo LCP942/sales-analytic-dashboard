@@ -1,0 +1,8 @@
+<span
+  class="status-badge"
+  [attr.data-status]="status()"
+  role="status"
+  [attr.aria-label]="'Order status: ' + label()">
+  <span class="status-badge__dot" aria-hidden="true"></span>
+  {{ label() }}
+</span>

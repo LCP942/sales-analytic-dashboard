@@ -1,0 +1,27 @@
+@if (status() === 'CANCELLED') {
+  <div class="timeline-cancelled">
+    <span class="timeline-cancelled__badge"
+          role="status"
+          aria-label="Order status: Cancelled">
+      Cancelled
+    </span>
+  </div>
+} @else {
+  <ol class="timeline" aria-label="Order progress">
+    @for (step of steps(); track step.status) {
+      <li class="timeline__step"
+          [attr.data-state]="step.state"
+          [attr.aria-current]="step.state === 'active' ? 'step' : null"
+          [attr.aria-label]="step.label + ': ' + step.state">
+        <span class="timeline__circle">
+          @if (step.state === 'done') {
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+              <polyline points="2,7 5.5,11 12,3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          }
+        </span>
+        <span class="timeline__label">{{ step.label }}</span>
+      </li>
+    }
+  </ol>
+}

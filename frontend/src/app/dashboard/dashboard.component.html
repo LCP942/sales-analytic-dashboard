@@ -1,0 +1,54 @@
+<div class="dashboard">
+  <header class="dashboard__header">
+    <div class="dashboard__title">
+      <h1>Sales Dashboard</h1>
+      <span class="dashboard__subtitle">E-commerce analytics</span>
+    </div>
+  </header>
+
+  <app-filter-strip />
+
+  <main class="dashboard__content">
+    <!-- KPI Cards -->
+    @if (isInitialLoad()) {
+      <div class="kpi-skeleton-row">
+        @for (_ of [1,2,3]; track $index) {
+          <app-skeleton-loader height="120px" />
+        }
+      </div>
+    } @else if (kpis()) {
+      <app-kpi-cards [kpis]="kpis()!" />
+    }
+
+    <!-- Charts row 1: Revenue line chart (full width) -->
+    <div class="chart-card">
+      @if (isInitialLoad()) {
+        <app-skeleton-loader height="300px" />
+      } @else {
+        <h2 class="chart-card__title">Revenue over time</h2>
+        <app-revenue-chart [data]="revenueData()" />
+      }
+    </div>
+
+    <!-- Charts row 2: Top products + Category breakdown -->
+    <div class="chart-row">
+      <div class="chart-card">
+        @if (isInitialLoad()) {
+          <app-skeleton-loader height="280px" />
+        } @else {
+          <h2 class="chart-card__title">Top products</h2>
+          <app-top-products-chart [data]="topProducts()" />
+        }
+      </div>
+
+      <div class="chart-card">
+        @if (isInitialLoad()) {
+          <app-skeleton-loader height="280px" />
+        } @else {
+          <h2 class="chart-card__title">Sales by category</h2>
+          <app-category-chart [data]="categories()" />
+        }
+      </div>
+    </div>
+  </main>
+</div>

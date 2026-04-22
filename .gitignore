@@ -1,0 +1,35 @@
+# Ignore everything by default
+*
+.*
+
+# Root files
+!.gitignore
+!README.md
+!docker-compose.yml
+!railway.json
+
+# Backend
+!backend/
+!backend/src/
+!backend/src/**
+!backend/pom.xml
+!backend/Dockerfile
+
+# Frontend
+!frontend/
+!frontend/src/
+!frontend/src/**
+!frontend/angular.json
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/tsconfig.json
+!frontend/tsconfig.app.json
+!frontend/tsconfig.spec.json
+!frontend/Dockerfile
+!frontend/nginx.conf
+!frontend/vercel.json
+
+# Docker init scripts
+!docker/
+!docker/init/
+!docker/init/**

@@ -1,0 +1,44 @@
+.customer-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.customer-card__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--status-confirmed-bg);
+  color: var(--status-confirmed-text);
+  border: 2px solid var(--status-confirmed-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.customer-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customer-card__name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+}
+
+.customer-card__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.customer-card__icon {
+  font-size: 0.75rem;
+}

@@ -1,0 +1,72 @@
+.global-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: #1e293b;
+  color: #f8fafc;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  z-index: 200;
+
+  @media (max-width: 767px) {
+    display: flex;
+  }
+}
+
+.mobile-header__hamburger {
+  background: none;
+  border: none;
+  color: #f8fafc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.mobile-header__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+
+  @media (max-width: 767px) {
+    padding-top: 56px;
+    height: 100dvh;
+  }
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #f8fafc;
+}

@@ -1,0 +1,85 @@
+<div class="orders-page">
+  <div class="orders-page__header">
+    <h1 class="orders-page__title">Orders</h1>
+    <p class="orders-page__subtitle">{{ totalElements() }} orders found</p>
+  </div>
+
+  <app-order-filters (filtersChange)="onFiltersChange($event)" />
+
+  <div class="orders-card">
+    @if (!hasLoaded() && loading()) {
+      <div class="orders-spinner">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else {
+      @if (loading()) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+
+      @if (!loading() && orders().length === 0) {
+        <div class="orders-empty">
+          <mat-icon>inbox</mat-icon>
+          <p>No orders match your filters</p>
+          <button mat-stroked-button (click)="clearFilters()">Clear filters</button>
+        </div>
+      }
+
+      <table mat-table [dataSource]="orders()"
+             matSort [matSortDisableClear]="true"
+             (matSortChange)="onSort($event)"
+             class="orders-table"
+             [class.hidden]="!loading() && orders().length === 0">
+
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+          <td mat-cell *matCellDef="let o">#{{ o.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="orderDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+          <td mat-cell *matCellDef="let o">{{ o.orderDate | date:'dd MMM yyyy' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="customerName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+          <td mat-cell *matCellDef="let o">{{ o.customerName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let o">
+            <app-status-badge [status]="o.status" />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="totalAmount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="col-right">Total</th>
+          <td mat-cell *matCellDef="let o" class="col-right amount">
+            {{ o.totalAmount | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let o">
+            <mat-icon class="row-arrow">chevron_right</mat-icon>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"
+            class="orders-row"
+            matRipple
+            (click)="openOrder(row.id)"></tr>
+      </table>
+
+      <mat-paginator
+        [length]="totalElements()"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        [pageIndex]="pageIndex()"
+        (page)="onPage($event)"
+        showFirstLastButtons />
+    }
+  </div>
+</div>

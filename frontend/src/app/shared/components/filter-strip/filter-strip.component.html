@@ -1,0 +1,35 @@
+<div class="filter-strip">
+  <span class="filter-strip__label">Period</span>
+
+  <div class="filter-strip__presets">
+    @for (p of presets; track p.value) {
+      <button class="filter-strip__btn"
+              [class.active]="filter.activePreset() === p.value"
+              (click)="onPreset(p.value)">
+        {{ p.label }}
+      </button>
+    }
+  </div>
+
+  <span class="filter-strip__divider" aria-hidden="true"></span>
+
+  <div class="filter-strip__dates">
+    <input class="filter-strip__date"
+           [matDatepicker]="fromPicker"
+           [value]="fromDate()"
+           (dateChange)="onFromChange($event.value)"
+           (click)="fromPicker.open()"
+           readonly
+           placeholder="From" />
+    <mat-datepicker #fromPicker />
+
+    <input class="filter-strip__date"
+           [matDatepicker]="toPicker"
+           [value]="toDate()"
+           (dateChange)="onToChange($event.value)"
+           (click)="toPicker.open()"
+           readonly
+           placeholder="To" />
+    <mat-datepicker #toPicker />
+  </div>
+</div>

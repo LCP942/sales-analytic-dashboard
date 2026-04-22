@@ -1,0 +1,40 @@
+<nav class="sidebar">
+  <div class="sidebar__brand">
+    <mat-icon class="sidebar__brand-icon">bar_chart</mat-icon>
+    <span class="sidebar__brand-name">SalesDash</span>
+  </div>
+
+  <ul class="sidebar__nav">
+    <li>
+      <a class="sidebar__link"
+         routerLink="/dashboard"
+         routerLinkActive="sidebar__link--active"
+         matRipple
+         matTooltip="Dashboard"
+         matTooltipPosition="right">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <li>
+      <a class="sidebar__link"
+         routerLink="/orders"
+         routerLinkActive="sidebar__link--active"
+         matRipple
+         matTooltip="Orders"
+         matTooltipPosition="right">
+        <mat-icon>receipt_long</mat-icon>
+        <span>Orders</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar__footer">
+    <button class="sidebar__theme-toggle" (click)="theme.toggle()" matRipple
+            [matTooltip]="theme.isDark() ? 'Light mode' : 'Dark mode'"
+            matTooltipPosition="right">
+      <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      <span>{{ theme.isDark() ? 'Light mode' : 'Dark mode' }}</span>
+    </button>
+  </div>
+</nav>

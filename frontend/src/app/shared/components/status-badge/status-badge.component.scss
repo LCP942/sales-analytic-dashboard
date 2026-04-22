@@ -1,0 +1,53 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+
+.status-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-badge[data-status="PENDING"] {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+  border-color: var(--status-pending-border);
+  .status-badge__dot { background: var(--status-pending-text); }
+}
+
+.status-badge[data-status="CONFIRMED"] {
+  background: var(--status-confirmed-bg);
+  color: var(--status-confirmed-text);
+  border-color: var(--status-confirmed-border);
+  .status-badge__dot { background: var(--status-confirmed-text); }
+}
+
+.status-badge[data-status="SHIPPED"] {
+  background: var(--status-shipped-bg);
+  color: var(--status-shipped-text);
+  border-color: var(--status-shipped-border);
+  .status-badge__dot { background: var(--status-shipped-text); }
+}
+
+.status-badge[data-status="DELIVERED"] {
+  background: var(--status-delivered-bg);
+  color: var(--status-delivered-text);
+  border-color: var(--status-delivered-border);
+  .status-badge__dot { background: var(--status-delivered-text); }
+}
+
+.status-badge[data-status="CANCELLED"] {
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled-text);
+  border-color: var(--status-cancelled-border);
+  .status-badge__dot { background: var(--status-cancelled-text); }
+}

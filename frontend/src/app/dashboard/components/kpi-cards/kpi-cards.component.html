@@ -1,0 +1,20 @@
+<div class="kpi-cards">
+  @for (card of cards(); track card.label) {
+    <div class="kpi-card">
+      <div class="kpi-card__header">
+        <span class="kpi-card__label">{{ card.label }}</span>
+        <span class="material-icons kpi-card__icon">{{ card.icon }}</span>
+      </div>
+      <p class="kpi-card__value">
+        {{ card.prefix }}<span
+          [countUp]="card.numericValue"
+          [countUpDecimals]="card.decimals"
+          [countUpDuration]="700">
+        </span>
+      </p>
+      <span class="kpi-card__delta" [class.up]="card.growth >= 0" [class.down]="card.growth < 0">
+        {{ card.growth >= 0 ? '▲' : '▼' }} {{ card.growth | number:'1.1-1' }}%
+      </span>
+    </div>
+  }
+</div>

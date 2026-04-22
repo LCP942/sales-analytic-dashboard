@@ -1,0 +1,6 @@
+*
+!.gitignore
+!pom.xml
+!Dockerfile
+!src/
+!src/**

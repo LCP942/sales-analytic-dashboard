@@ -1,0 +1,14 @@
+.chart-wrap {
+  position: relative;
+}
+
+canvas {
+  max-height: 280px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #9ca3af;
+  padding: 48px 0;
+  margin: 0;
+}

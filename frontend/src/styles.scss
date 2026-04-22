@@ -1,0 +1,318 @@
+@use '@angular/material' as mat;
+
+// Light theme
+$theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$violet-palette,
+  ),
+  typography: (
+    brand-family: 'Inter, sans-serif',
+    plain-family: 'Inter, sans-serif',
+  ),
+));
+
+// Dark theme — same palettes, dark variant
+$dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+    primary: mat.$azure-palette,
+    tertiary: mat.$violet-palette,
+  ),
+  typography: (
+    brand-family: 'Inter, sans-serif',
+    plain-family: 'Inter, sans-serif',
+  ),
+));
+
+html {
+  @include mat.core-theme($theme);
+  @include mat.all-component-themes($theme);
+}
+
+// Dark mode: toggled via ThemeService adding 'dark' class to <html>
+html.dark {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  @include mat.all-component-colors($dark-theme);
+}
+
+// ============================================================
+// Design Tokens
+// ============================================================
+
+:root {
+  // Base palette
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+
+  // Container
+  --container-max-width: 1280px;
+
+  // Spacing (4px base unit)
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  // Status: PENDING
+  --status-pending-bg: #f1f5f9;
+  --status-pending-text: #475569;
+  --status-pending-border: #e2e8f0;
+
+  // Status: CONFIRMED
+  --status-confirmed-bg: #eff6ff;
+  --status-confirmed-text: #1d4ed8;
+  --status-confirmed-border: #bfdbfe;
+
+  // Status: SHIPPED
+  --status-shipped-bg: #fffbeb;
+  --status-shipped-text: #d97706;
+  --status-shipped-border: #fde68a;
+
+  // Status: DELIVERED
+  --status-delivered-bg: #f0fdf4;
+  --status-delivered-text: #16a34a;
+  --status-delivered-border: #bbf7d0;
+
+  // Status: CANCELLED
+  --status-cancelled-bg: #fef2f2;
+  --status-cancelled-text: #dc2626;
+  --status-cancelled-border: #fecaca;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+// ============================================================
+// Dashboard layout
+// ============================================================
+
+.dashboard {
+  max-width: var(--container-max-width, 1280px);
+  margin: 0 auto;
+  padding: 24px;
+
+  @media (max-width: 767px) {
+    padding: 16px;
+  }
+
+  &__header {
+    margin-bottom: 16px;
+  }
+
+  &__title {
+    h1 {
+      margin: 0 0 4px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+
+  app-filter-strip {
+    display: block;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+// ============================================================
+// KPI Cards
+// ============================================================
+
+.kpi-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpi-skeleton-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  &__icon {
+    font-size: 20px;
+    color: #94a3b8;
+  }
+
+  &__value {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  &__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.up   { background: #f0fdf4; color: #16a34a; }
+    &.down { background: #fef2f2; color: #dc2626; }
+  }
+}
+
+// ============================================================
+// Chart cards
+// ============================================================
+
+.chart-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+
+  &__title {
+    margin: 0 0 16px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #334155;
+  }
+}
+
+.chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================
+// Date range filter
+// ============================================================
+
+.filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  &__date-field {
+    width: 140px;
+  }
+}
+
+// ============================================================
+// Snackbar error style
+// ============================================================
+
+.snack-error .mdc-snackbar__surface {
+  background: #dc2626 !important;
+  color: #fff !important;
+}
+
+// ============================================================
+// Dark mode custom overrides
+// ============================================================
+
+html.dark {
+  body {
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+
+  .app-content { background: #0f172a; }
+
+  .kpi-card {
+    background: #1e293b;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3);
+
+    &__label { color: #94a3b8; }
+    &__value { color: #f8fafc; }
+    &__icon { color: #475569; }
+  }
+
+  .chart-card {
+    background: #1e293b;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3);
+    &__title { color: #cbd5e1; }
+  }
+
+  .orders-card,
+  .detail-card {
+    background: #1e293b;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+
+  .orders-page__title,
+  .detail-title { color: #f1f5f9; }
+  .orders-page__subtitle,
+  .detail-meta { color: #94a3b8; }
+
+  .orders-row:hover { background: #263548; }
+  .amount { color: #f1f5f9; }
+
+  .detail-summary__row--total {
+    border-color: #334155;
+  }
+
+  .badge {
+    background: #334155;
+    color: #94a3b8;
+  }
+
+  .empty-state { color: #475569; }
+}

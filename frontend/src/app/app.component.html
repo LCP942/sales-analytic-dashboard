@@ -1,0 +1,18 @@
+@if (loading.isLoading()) {
+  <mat-progress-bar mode="indeterminate" class="global-progress-bar" />
+}
+<header class="mobile-header">
+  <button class="mobile-header__hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span class="mobile-header__title">SalesDash</span>
+</header>
+<div class="app-layout">
+  @if (sidebarOpen()) {
+    <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+  }
+  <app-sidebar [isOpen]="sidebarOpen()" />
+  <main class="app-content">
+    <router-outlet />
+  </main>
+</div>

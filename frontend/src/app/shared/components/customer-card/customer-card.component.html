@@ -1,0 +1,24 @@
+<div class="customer-card" role="region" aria-label="Customer information">
+  <div class="customer-card__avatar" aria-hidden="true">
+    {{ initial() }}
+  </div>
+  <div class="customer-card__info">
+    <span class="customer-card__name">{{ customer().name }}</span>
+    <span class="customer-card__row">
+      <span class="customer-card__icon" aria-hidden="true">✉</span>
+      {{ customer().email }}
+    </span>
+    <span class="customer-card__row">
+      <span class="customer-card__icon" aria-hidden="true">📍</span>
+      {{ customer().city }}
+    </span>
+    <span class="customer-card__row">
+      <span class="customer-card__icon" aria-hidden="true">📦</span>
+      {{ customer().orderCount }} {{ customer().orderCount === 1 ? 'order' : 'orders' }} total
+    </span>
+    <span class="customer-card__row">
+      <span class="customer-card__icon" aria-hidden="true">💶</span>
+      {{ customer().lifetimeValue | currency:'EUR':'symbol':'1.2-2':'fr-FR' }} lifetime value
+    </span>
+  </div>
+</div>

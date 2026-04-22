@@ -1,0 +1,26 @@
+<div class="filter">
+  <mat-button-toggle-group [value]="filter.activePreset()" (change)="onPreset($event.value)">
+    <mat-button-toggle value="today">Today</mat-button-toggle>
+    <mat-button-toggle value="7d">7 days</mat-button-toggle>
+    <mat-button-toggle value="30d">30 days</mat-button-toggle>
+    <mat-button-toggle value="12m">12 months</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <mat-form-field appearance="outline" class="filter__date-field">
+    <mat-label>From</mat-label>
+    <input matInput [matDatepicker]="fromPicker"
+           [value]="fromDate()"
+           (dateChange)="onCustomRange($event.value, toDate())">
+    <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+    <mat-datepicker #fromPicker />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="filter__date-field">
+    <mat-label>To</mat-label>
+    <input matInput [matDatepicker]="toPicker"
+           [value]="toDate()"
+           (dateChange)="onCustomRange(fromDate(), $event.value)">
+    <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+    <mat-datepicker #toPicker />
+  </mat-form-field>
+</div>

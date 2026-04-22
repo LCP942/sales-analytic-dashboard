@@ -1,0 +1,17 @@
+<div class="order-filters">
+  <mat-chip-listbox
+    multiple
+    aria-label="Filter by status"
+    [value]="chipValues()"
+    (change)="onChipChange($event)">
+    <mat-chip-option value="ALL">All</mat-chip-option>
+    @for (s of statusOptions; track s.value) {
+      <mat-chip-option [value]="s.value">{{ s.label }}</mat-chip-option>
+    }
+  </mat-chip-listbox>
+
+  <input class="order-filters__search"
+         [formControl]="searchControl"
+         aria-label="Search by customer name"
+         placeholder="Search customer…" />
+</div>
