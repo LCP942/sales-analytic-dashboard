@@ -1,5 +1,10 @@
 # Sales Analytics Dashboard
 
+### [→ Live demo](https://sales-analytic-dashboard.lcp942.com)
+> Seeded data — no setup, no account required.
+
+---
+
 ![Angular](https://img.shields.io/badge/Angular-19-dd0031?logo=angular&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3-6db33f?logo=springboot&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)
@@ -7,11 +12,9 @@
 ![Docker](https://img.shields.io/badge/Docker_Compose-ready-2496ed?logo=docker&logoColor=white)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://sales-analytic-dashboard.lcp942.com)
 
-A full-stack sales analytics dashboard built as a portfolio project for Angular freelance engagements.
+A full-stack sales analytics dashboard.
 The backend exposes five aggregation endpoints over a MySQL dataset of 500 seeded orders.
 The frontend renders four interactive chart components driven by a reactive date-range filter.
-
-> **Evaluators:** the live demo loads with real data — no login required.
 
 ---
 
