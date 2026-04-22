@@ -17,9 +17,9 @@ The frontend renders four interactive chart components driven by a reactive date
 
 ## Screenshots
 
-![img_2.png](img_2.png)
-![img_4.png](img_4.png)
-![img_5.png](img_5.png)
+![img_2.png](docs/img_2.png)
+![img_4.png](docs/img_4.png)
+![img_5.png](docs/img_5.png)
 
 ---
 
