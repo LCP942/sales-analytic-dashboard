@@ -5,7 +5,7 @@
 ![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.4-4479a1?logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker_Compose-ready-2496ed?logo=docker&logoColor=white)
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://your-app.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://sales-analytic-dashboard.lcp942.com)
 
 A full-stack sales analytics dashboard built as a portfolio project for Angular freelance engagements.
 The backend exposes five aggregation endpoints over a MySQL dataset of 500 seeded orders.
@@ -17,7 +17,9 @@ The frontend renders four interactive chart components driven by a reactive date
 
 ## Screenshots
 
-> *(Add 2–3 screenshots here after first deployment)*
+![img_2.png](img_2.png)
+![img_4.png](img_4.png)
+![img_5.png](img_5.png)
 
 ---
 
@@ -112,18 +114,18 @@ All endpoints accept `?from=YYYY-MM-DD&to=YYYY-MM-DD`.
 
 1. Push this repository to GitHub.
 2. Create a new Railway project → **Deploy from GitHub repo**.
-3. Set the **Root Directory** to `/` (Railway reads `railway.json` which points to `backend/Dockerfile`).
+3. In the service settings → Source: set **Root Directory** to `backend` and **Dockerfile Path** to `Dockerfile`.
 4. Add a **MySQL** plugin in Railway and copy the connection variables.
-5. Set the following environment variables in Railway:
+5. Set the following environment variables in the backend service:
 
    | Variable | Value |
    |---|---|
-   | `DATABASE_URL` | `jdbc:mysql://<host>:<port>/railway` |
+   | `DATABASE_URL` | `jdbc:mysql://<host>:<port>/sales_dashboard` |
    | `DATABASE_USER` | from Railway MySQL plugin |
    | `DATABASE_PASSWORD` | from Railway MySQL plugin |
-   | `CORS_ORIGINS` | your Vercel URL (e.g. `https://your-app.vercel.app`) |
+   | `CORS_ORIGINS` | your frontend URL (e.g. `https://your-app.vercel.app`) |
 
-6. On first deploy, Railway runs the Docker init scripts — the seed executes automatically.
+6. Initialize the database manually: open the MySQL plugin → Database tab → run `docker/init/01-schema.sql` then `docker/init/02-seed.sql` (without the `CREATE DATABASE`/`USE` lines — the Railway query editor targets the default database).
 
 > **Cold start tip:** configure UptimeRobot (free) to ping `GET /api/stats/kpis` every 5 minutes to prevent Railway's inactivity sleep.
 
