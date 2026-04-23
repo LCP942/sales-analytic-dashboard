@@ -69,7 +69,6 @@
         <tr mat-header-row *matHeaderRowDef="columns"></tr>
         <tr mat-row *matRowDef="let row; columns: columns"
             class="orders-row"
-            matRipple
             (click)="openOrder(row.id)"></tr>
       </table>
 

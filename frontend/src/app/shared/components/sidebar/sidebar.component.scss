@@ -19,6 +19,7 @@
     left: 0;
     height: calc(100dvh - 56px);
     z-index: 100;
+    pointer-events: none;
   }
 
   .sidebar {
@@ -26,6 +27,7 @@
     height: 100%;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
+    pointer-events: auto;
   }
 
   :host.is-open .sidebar {

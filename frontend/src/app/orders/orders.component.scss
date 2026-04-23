@@ -42,8 +42,10 @@
   transition: background 0.12s;
 }
 
-.orders-row:hover {
-  background: #f1f5f9;
+@media (hover: hover) {
+  .orders-row:hover {
+    background: #f1f5f9;
+  }
 }
 
 .col-right {
