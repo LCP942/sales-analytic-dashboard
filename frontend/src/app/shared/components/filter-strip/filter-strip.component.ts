@@ -20,8 +20,8 @@ export class FilterStripComponent {
     { value: '12m',   label: 'Last 12 months' },
   ];
 
-  fromDate(): Date { return new Date(this.filter.from()); }
-  toDate(): Date   { return new Date(this.filter.to()); }
+  fromDate(): Date { return this.parseLocalDate(this.filter.from()); }
+  toDate(): Date   { return this.parseLocalDate(this.filter.to()); }
 
   onPreset(preset: DatePreset): void {
     this.filter.setPreset(preset);
@@ -40,6 +40,14 @@ export class FilterStripComponent {
   }
 
   private toIso(date: Date): string {
-    return date.toISOString().split('T')[0];
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private parseLocalDate(iso: string): Date {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d);
   }
 }
