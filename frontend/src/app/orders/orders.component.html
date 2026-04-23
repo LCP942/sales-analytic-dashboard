@@ -1,7 +1,20 @@
 <div class="orders-page">
   <div class="orders-page__header">
-    <h1 class="orders-page__title">Orders</h1>
-    <p class="orders-page__subtitle">{{ totalElements() }} orders found</p>
+    <div>
+      <h1 class="orders-page__title">Orders</h1>
+      <p class="orders-page__subtitle">{{ totalElements() }} orders found</p>
+    </div>
+    <button class="orders-page__export-btn"
+            (click)="exportExcel()"
+            [disabled]="exporting() || totalElements() === 0"
+            [title]="totalElements() === 0 ? 'No orders to export' : 'Export to CSV'">
+      @if (exporting()) {
+        <mat-icon class="spin">sync</mat-icon>
+      } @else {
+        <mat-icon>download</mat-icon>
+      }
+      {{ exporting() ? 'Exporting…' : 'Export' }}
+    </button>
   </div>
 
   <app-order-filters (filtersChange)="onFiltersChange($event)" />

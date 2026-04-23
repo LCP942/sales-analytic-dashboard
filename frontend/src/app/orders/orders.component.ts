@@ -53,6 +53,7 @@ export class OrdersComponent implements OnInit {
   pageIndex = signal(0);
   loading = signal(false);
   hasLoaded = signal(false);
+  exporting = signal(false);
 
   private activeFilters: OrderFilters = { statuses: [], search: '' };
   private activeSort = 'orderDate,desc';
@@ -95,6 +96,33 @@ export class OrdersComponent implements OnInit {
 
   clearFilters(): void {
     this.filtersRef.reset();
+  }
+
+  exportExcel(): void {
+    if (this.exporting() || this.totalElements() === 0) return;
+    this.exporting.set(true);
+    this.ordersService.getOrders(
+      this.from, this.to,
+      this.activeFilters.search,
+      this.activeFilters.statuses,
+      0, this.totalElements(),
+      this.activeSort,
+    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: page => {
+        const headers = ['ID', 'Date', 'Customer', 'Status', 'Total (EUR)'];
+        const rows = page.content.map(o => [o.id, o.orderDate, o.customerName, o.status, o.totalAmount]);
+        const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `orders-${this.from}-to-${this.to}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.exporting.set(false);
+      },
+      error: () => this.exporting.set(false),
+    });
   }
 
   private load(): void {
