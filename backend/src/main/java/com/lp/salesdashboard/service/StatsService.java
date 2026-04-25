@@ -1,6 +1,9 @@
 package com.lp.salesdashboard.service;
 
 import com.lp.salesdashboard.dto.*;
+import com.lp.salesdashboard.projection.CategoryProjection;
+import com.lp.salesdashboard.projection.DailyStatProjection;
+import com.lp.salesdashboard.projection.TopProductProjection;
 
 import java.util.EnumMap;
 import com.lp.salesdashboard.repository.OrderItemRepository;
@@ -19,7 +22,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -84,13 +87,12 @@ public class StatsService {
     // -------------------------------------------------------------------------
 
     public List<RevenuePointDto> getOrderCountOverTime(LocalDate from, LocalDate to) {
-        List<Object[]> daily = orderRepo.findDailyOrderCount(from, to);
         long days = ChronoUnit.DAYS.between(from, to);
 
-        List<RevenuePointDto> points = daily.stream()
-                .map(row -> new RevenuePointDto(
-                        row[0].toString(),
-                        BigDecimal.valueOf(((Number) row[1]).longValue())))
+        List<RevenuePointDto> points = orderRepo.findDailyOrderCount(from, to).stream()
+                .map(p -> new RevenuePointDto(
+                        p.getOrderDate().toString(),
+                        BigDecimal.valueOf(p.getOrderCount())))
                 .toList();
 
         if (days <= 31) return points;
@@ -103,11 +105,8 @@ public class StatsService {
     // -------------------------------------------------------------------------
 
     public List<TopProductDto> getTopProducts(LocalDate from, LocalDate to) {
-        return itemRepo.findTopProducts(from, to, PageRequest.of(0, TOP_PRODUCTS_LIMIT))
-                .stream()
-                .map(row -> new TopProductDto(
-                        (String) row[0],
-                        new BigDecimal(row[1].toString())))
+        return itemRepo.findTopProducts(from, to, PageRequest.of(0, TOP_PRODUCTS_LIMIT)).stream()
+                .map(p -> new TopProductDto(p.getName(), p.getRevenue()))
                 .toList();
     }
 
@@ -116,11 +115,8 @@ public class StatsService {
     // -------------------------------------------------------------------------
 
     public List<CategoryBreakdownDto> getOrdersByCategory(LocalDate from, LocalDate to) {
-        return itemRepo.findOrdersByCategory(from, to)
-                .stream()
-                .map(row -> new CategoryBreakdownDto(
-                        (String) row[0],
-                        ((Number) row[1]).longValue()))
+        return itemRepo.findOrdersByCategory(from, to).stream()
+                .map(p -> new CategoryBreakdownDto(p.getCategory(), p.getItemCount()))
                 .toList();
     }
 
@@ -129,25 +125,23 @@ public class StatsService {
     // -------------------------------------------------------------------------
 
     public List<WeekdayStatDto> getOrdersByWeekday(LocalDate from, LocalDate to) {
-        Map<DayOfWeek, long[]> counts = new EnumMap<>(DayOfWeek.class);
+        Map<DayOfWeek, Long> counts = new EnumMap<>(DayOfWeek.class);
         Map<DayOfWeek, BigDecimal> revenues = new EnumMap<>(DayOfWeek.class);
         for (DayOfWeek d : DayOfWeek.values()) {
-            counts.put(d, new long[]{0});
+            counts.put(d, 0L);
             revenues.put(d, BigDecimal.ZERO);
         }
 
-        for (Object[] row : orderRepo.findDailyStats(from, to)) {
-            LocalDate date = (LocalDate) row[0];
-            DayOfWeek dow = date.getDayOfWeek();
-            counts.get(dow)[0] += ((Number) row[1]).longValue();
-            revenues.merge(dow, new BigDecimal(row[2].toString()), BigDecimal::add);
+        for (DailyStatProjection p : orderRepo.findDailyStats(from, to)) {
+            DayOfWeek dow = p.getOrderDate().getDayOfWeek();
+            counts.merge(dow, p.getOrderCount(), Long::sum);
+            revenues.merge(dow, p.getRevenue(), BigDecimal::add);
         }
 
-        // Return Mon → Sun order
-        return List.of(DayOfWeek.values()).stream()
+        return Stream.of(DayOfWeek.values())
                 .map(d -> new WeekdayStatDto(
                         d.name().charAt(0) + d.name().substring(1).toLowerCase(),
-                        counts.get(d)[0],
+                        counts.get(d),
                         revenues.get(d)))
                 .toList();
     }

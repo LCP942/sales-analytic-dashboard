@@ -3,6 +3,8 @@ package com.lp.salesdashboard.repository;
 import com.lp.salesdashboard.dto.KpiRawDto;
 import com.lp.salesdashboard.dto.RevenuePointDto;
 import com.lp.salesdashboard.entity.SalesOrder;
+import com.lp.salesdashboard.projection.DailyOrderCountProjection;
+import com.lp.salesdashboard.projection.DailyStatProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -47,24 +49,24 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
     List<RevenuePointDto> findDailyRevenue(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
     @Query("""
-            SELECT o.orderDate, COUNT(o)
+            SELECT o.orderDate AS orderDate, COUNT(o) AS orderCount
             FROM SalesOrder o
             WHERE o.orderDate BETWEEN :from AND :to
             GROUP BY o.orderDate
             ORDER BY o.orderDate
             """)
-    List<Object[]> findDailyOrderCount(@Param("from") LocalDate from, @Param("to") LocalDate to);
+    List<DailyOrderCountProjection> findDailyOrderCount(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
     @Query("SELECT o FROM SalesOrder o JOIN FETCH o.customer JOIN FETCH o.items i JOIN FETCH i.product WHERE o.id = :id")
     Optional<SalesOrder> findWithItemsById(@Param("id") Long id);
 
     @Query("""
-            SELECT o.orderDate, COUNT(o), SUM(o.totalAmount)
+            SELECT o.orderDate AS orderDate, COUNT(o) AS orderCount, SUM(o.totalAmount) AS revenue
             FROM SalesOrder o
             WHERE o.orderDate BETWEEN :from AND :to
             GROUP BY o.orderDate
             """)
-    List<Object[]> findDailyStats(@Param("from") LocalDate from, @Param("to") LocalDate to);
+    List<DailyStatProjection> findDailyStats(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
     @Query("SELECT COUNT(o) FROM SalesOrder o WHERE o.customer.id = :customerId")
     long countByCustomerId(@Param("customerId") Long customerId);
