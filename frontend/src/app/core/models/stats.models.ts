@@ -25,3 +25,10 @@ export interface CategoryBreakdown {
   category: string;
   itemCount: number;
 }
+
+/** Mirrors WeekdayStatDto */
+export interface WeekdayStat {
+  day: string;
+  orderCount: number;
+  revenue: number;
+}

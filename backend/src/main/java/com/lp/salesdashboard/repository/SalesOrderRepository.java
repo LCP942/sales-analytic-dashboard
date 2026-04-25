@@ -58,6 +58,14 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
     @Query("SELECT o FROM SalesOrder o JOIN FETCH o.customer JOIN FETCH o.items i JOIN FETCH i.product WHERE o.id = :id")
     Optional<SalesOrder> findWithItemsById(@Param("id") Long id);
 
+    @Query("""
+            SELECT o.orderDate, COUNT(o), SUM(o.totalAmount)
+            FROM SalesOrder o
+            WHERE o.orderDate BETWEEN :from AND :to
+            GROUP BY o.orderDate
+            """)
+    List<Object[]> findDailyStats(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
     @Query("SELECT COUNT(o) FROM SalesOrder o WHERE o.customer.id = :customerId")
     long countByCustomerId(@Param("customerId") Long customerId);
 

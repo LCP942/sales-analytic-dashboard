@@ -46,6 +46,13 @@ public class StatsController {
         return statsService.getTopProducts(from, to);
     }
 
+    @GetMapping("/orders-by-weekday")
+    public List<WeekdayStatDto> getOrdersByWeekday(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return statsService.getOrdersByWeekday(from, to);
+    }
+
     @GetMapping("/orders-by-category")
     public List<CategoryBreakdownDto> getOrdersByCategory(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,

@@ -1,6 +1,8 @@
 package com.lp.salesdashboard.service;
 
 import com.lp.salesdashboard.dto.*;
+
+import java.util.EnumMap;
 import com.lp.salesdashboard.repository.OrderItemRepository;
 import com.lp.salesdashboard.repository.SalesOrderRepository;
 import org.springframework.data.domain.PageRequest;
@@ -119,6 +121,34 @@ public class StatsService {
                 .map(row -> new CategoryBreakdownDto(
                         (String) row[0],
                         ((Number) row[1]).longValue()))
+                .toList();
+    }
+
+    // -------------------------------------------------------------------------
+    // Orders by weekday
+    // -------------------------------------------------------------------------
+
+    public List<WeekdayStatDto> getOrdersByWeekday(LocalDate from, LocalDate to) {
+        Map<DayOfWeek, long[]> counts = new EnumMap<>(DayOfWeek.class);
+        Map<DayOfWeek, BigDecimal> revenues = new EnumMap<>(DayOfWeek.class);
+        for (DayOfWeek d : DayOfWeek.values()) {
+            counts.put(d, new long[]{0});
+            revenues.put(d, BigDecimal.ZERO);
+        }
+
+        for (Object[] row : orderRepo.findDailyStats(from, to)) {
+            LocalDate date = (LocalDate) row[0];
+            DayOfWeek dow = date.getDayOfWeek();
+            counts.get(dow)[0] += ((Number) row[1]).longValue();
+            revenues.merge(dow, new BigDecimal(row[2].toString()), BigDecimal::add);
+        }
+
+        // Return Mon → Sun order
+        return List.of(DayOfWeek.values()).stream()
+                .map(d -> new WeekdayStatDto(
+                        d.name().charAt(0) + d.name().substring(1).toLowerCase(),
+                        counts.get(d)[0],
+                        revenues.get(d)))
                 .toList();
     }
 

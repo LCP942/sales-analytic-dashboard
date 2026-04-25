@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CategoryBreakdown, DataPoint, KpiMetrics, TopProduct } from '../../core/models/stats.models';
+import { CategoryBreakdown, DataPoint, KpiMetrics, TopProduct, WeekdayStat } from '../../core/models/stats.models';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -27,6 +27,10 @@ export class DashboardService {
 
   getOrdersByCategory(from: string, to: string): Observable<CategoryBreakdown[]> {
     return this.http.get<CategoryBreakdown[]>(`${this.base}/orders-by-category`, { params: this.params(from, to) });
+  }
+
+  getOrdersByWeekday(from: string, to: string): Observable<WeekdayStat[]> {
+    return this.http.get<WeekdayStat[]>(`${this.base}/orders-by-weekday`, { params: this.params(from, to) });
   }
 
   private params(from: string, to: string): HttpParams {

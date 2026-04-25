@@ -30,6 +30,16 @@
       }
     </div>
 
+    <!-- Orders by weekday heatmap -->
+    <div class="chart-card">
+      @if (isInitialLoad()) {
+        <app-skeleton-loader height="120px" />
+      } @else {
+        <h2 class="chart-card__title">Orders by day of week</h2>
+        <app-weekday-heatmap [data]="weekdayStats()" />
+      }
+    </div>
+
     <!-- Charts row 2: Top products + Category breakdown -->
     <div class="chart-row">
       <div class="chart-card">

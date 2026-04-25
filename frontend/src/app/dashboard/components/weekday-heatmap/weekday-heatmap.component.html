@@ -1,0 +1,11 @@
+<div class="heatmap">
+  @for (cell of cells(); track cell.day) {
+    <div class="heatmap__cell"
+         [style.--intensity]="cell.intensity">
+      <span class="heatmap__day">{{ cell.label }}</span>
+      <span class="heatmap__count">{{ cell.orderCount }}</span>
+      <span class="heatmap__label">orders</span>
+      <span class="heatmap__revenue">{{ cell.revenue | currency:'EUR':'symbol':'1.0-0':'fr-FR' }}</span>
+    </div>
+  }
+</div>
