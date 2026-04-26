@@ -1,68 +1,58 @@
-import {
-  Component, input, effect, AfterViewInit,
-  ElementRef, ViewChild, OnDestroy,
-} from '@angular/core';
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { Component, computed, input } from '@angular/core';
+import { NgxEchartsDirective } from 'ngx-echarts';
+import type { EChartsCoreOption } from 'echarts/core';
 import { DataPoint } from '../../../core/models/stats.models';
-
-Chart.register(...registerables);
 
 @Component({
   selector: 'app-revenue-chart',
   standalone: true,
+  imports: [NgxEchartsDirective],
   templateUrl: './revenue-chart.component.html',
   styleUrls: ['./revenue-chart.component.scss'],
 })
-export class RevenueChartComponent implements AfterViewInit, OnDestroy {
+export class RevenueChartComponent {
   data = input.required<DataPoint[]>();
 
-  @ViewChild('canvas') private canvasRef!: ElementRef<HTMLCanvasElement>;
-  private chart: Chart | null = null;
-
-  constructor() {
-    // effect() reacts whenever the data signal changes (including after initial load)
-    effect(() => {
-      const points = this.data();
-      if (this.chart) {
-        this.chart.data.labels = points.map(p => p.label);
-        this.chart.data.datasets[0].data = points.map(p => p.revenue);
-        this.chart.update();
-        this.chart.resize();
-      }
-    });
-  }
-
-  ngAfterViewInit(): void {
-    const config: ChartConfiguration<'line'> = {
-      type: 'line',
-      data: {
-        labels: this.data().map(p => p.label),
-        datasets: [{
-          label: 'Revenue (€)',
-          data: this.data().map(p => p.revenue),
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59,130,246,0.1)',
-          borderWidth: 2,
-          pointRadius: 3,
-          fill: true,
-          tension: 0.4,
-        }],
+  protected chartOption = computed<EChartsCoreOption>(() => {
+    const points = this.data();
+    return {
+      grid: { left: 58, right: 16, top: 12, bottom: 32 },
+      tooltip: {
+        trigger: 'axis',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        formatter: (p: any) => `<b>${p[0].name}</b><br/>€${Number(p[0].value).toLocaleString('fr-FR')}`,
       },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: {
-            beginAtZero: false,
-            ticks: { callback: v => `€${Number(v).toLocaleString('fr-FR')}` },
+      xAxis: {
+        type: 'category',
+        data: points.map(p => p.label),
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: '#94a3b8', fontSize: 11 },
+      },
+      yAxis: {
+        type: 'value',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        axisLabel: { formatter: (v: any) => `€${(Number(v) / 1000).toFixed(0)}k`, color: '#94a3b8' },
+        splitLine: { lineStyle: { type: 'dashed', color: '#e2e8f0' } },
+      },
+      series: [{
+        type: 'line',
+        data: points.map(p => p.revenue),
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 5,
+        itemStyle: { color: '#3b82f6' },
+        lineStyle: { color: '#3b82f6', width: 2 },
+        areaStyle: {
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(59,130,246,0.25)' },
+              { offset: 1, color: 'rgba(59,130,246,0)' },
+            ],
           },
         },
-      },
+      }],
     };
-    this.chart = new Chart(this.canvasRef.nativeElement, config);
-  }
-
-  ngOnDestroy(): void {
-    this.chart?.destroy();
-  }
+  });
 }

@@ -1,61 +1,35 @@
-import {
-  Component, input, effect, AfterViewInit,
-  ElementRef, ViewChild, OnDestroy,
-} from '@angular/core';
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { Component, computed, input } from '@angular/core';
+import { NgxEchartsDirective } from 'ngx-echarts';
+import type { EChartsCoreOption } from 'echarts/core';
 import { CategoryBreakdown } from '../../../core/models/stats.models';
 
-Chart.register(...registerables);
-
-const PALETTE = ['#3b82f6','#6366f1','#8b5cf6','#ec4899','#f97316','#22c55e'];
+const PALETTE = ['#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', '#f97316', '#22c55e'];
 
 @Component({
   selector: 'app-category-chart',
   standalone: true,
+  imports: [NgxEchartsDirective],
   templateUrl: './category-chart.component.html',
   styleUrls: ['./category-chart.component.scss'],
 })
-export class CategoryChartComponent implements AfterViewInit, OnDestroy {
+export class CategoryChartComponent {
   data = input.required<CategoryBreakdown[]>();
 
-  @ViewChild('canvas') private canvasRef!: ElementRef<HTMLCanvasElement>;
-  private chart: Chart | null = null;
-
-  constructor() {
-    effect(() => {
-      const cats = this.data();
-      if (this.chart) {
-        this.chart.data.labels = cats.map(c => c.category);
-        this.chart.data.datasets[0].data = cats.map(c => c.itemCount);
-        this.chart.update();
-        this.chart.resize();
-      }
-    });
-  }
-
-  ngAfterViewInit(): void {
-    const config: ChartConfiguration<'doughnut'> = {
-      type: 'doughnut',
-      data: {
-        labels: this.data().map(c => c.category),
-        datasets: [{
-          data: this.data().map(c => c.itemCount),
-          backgroundColor: PALETTE,
-          borderWidth: 2,
-          hoverOffset: 6,
-        }],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' },
-        },
-      },
+  protected chartOption = computed<EChartsCoreOption>(() => {
+    const cats = this.data();
+    return {
+      color: PALETTE,
+      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+      legend: { bottom: 0, textStyle: { color: '#64748b' } },
+      series: [{
+        type: 'pie',
+        radius: ['38%', '68%'],
+        center: ['50%', '45%'],
+        itemStyle: { borderRadius: 6, borderWidth: 2, borderColor: '#fff' },
+        label: { show: false },
+        emphasis: { label: { show: true, fontWeight: 'bold', fontSize: 13 } },
+        data: cats.map(c => ({ name: c.category, value: c.itemCount })),
+      }],
     };
-    this.chart = new Chart(this.canvasRef.nativeElement, config);
-  }
-
-  ngOnDestroy(): void {
-    this.chart?.destroy();
-  }
+  });
 }

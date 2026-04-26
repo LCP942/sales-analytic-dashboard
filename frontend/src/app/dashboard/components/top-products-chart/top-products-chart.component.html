@@ -1,6 +1,7 @@
 <div class="chart-wrap">
   @if (data().length === 0) {
     <p class="empty-state">No data for this period</p>
+  } @else {
+    <div echarts [options]="chartOption()" class="chart"></div>
   }
-  <canvas #canvas [style.display]="data().length === 0 ? 'none' : 'block'"></canvas>
 </div>

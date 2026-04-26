@@ -1,66 +1,58 @@
-import {
-  Component, input, effect, AfterViewInit,
-  ElementRef, ViewChild, OnDestroy,
-} from '@angular/core';
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { Component, computed, input } from '@angular/core';
+import { NgxEchartsDirective } from 'ngx-echarts';
+import type { EChartsCoreOption } from 'echarts/core';
 import { TopProduct } from '../../../core/models/stats.models';
 
-Chart.register(...registerables);
-
 const PALETTE = [
-  '#3b82f6','#6366f1','#8b5cf6','#a855f7','#ec4899',
-  '#f43f5e','#f97316','#eab308','#22c55e','#14b8a6',
+  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#ec4899',
+  '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6',
 ];
 
 @Component({
   selector: 'app-top-products-chart',
   standalone: true,
+  imports: [NgxEchartsDirective],
   templateUrl: './top-products-chart.component.html',
   styleUrls: ['./top-products-chart.component.scss'],
 })
-export class TopProductsChartComponent implements AfterViewInit, OnDestroy {
+export class TopProductsChartComponent {
   data = input.required<TopProduct[]>();
 
-  @ViewChild('canvas') private canvasRef!: ElementRef<HTMLCanvasElement>;
-  private chart: Chart | null = null;
+  protected chartOption = computed<EChartsCoreOption>(() => {
+    const products = this.data();
+    const names = [...products.map(p => p.name)].reverse();
+    const values = [...products.map(p => p.revenue)].reverse();
 
-  constructor() {
-    effect(() => {
-      const products = this.data();
-      if (this.chart) {
-        this.chart.data.labels = products.map(p => p.name);
-        this.chart.data.datasets[0].data = products.map(p => p.revenue);
-        this.chart.update();
-        this.chart.resize();
-      }
-    });
-  }
-
-  ngAfterViewInit(): void {
-    const config: ChartConfiguration<'bar'> = {
-      type: 'bar',
-      data: {
-        labels: this.data().map(p => p.name),
-        datasets: [{
-          label: 'Revenue (€)',
-          data: this.data().map(p => p.revenue),
-          backgroundColor: PALETTE,
-          borderRadius: 4,
-        }],
+    return {
+      grid: { left: 110, right: 32, top: 12, bottom: 32 },
+      tooltip: {
+        trigger: 'axis',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        formatter: (p: any) => `<b>${p[0].name}</b><br/>€${Number(p[0].value).toLocaleString('fr-FR')}`,
       },
-      options: {
-        indexAxis: 'y',  // horizontal bar
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { callback: v => `€${Number(v).toLocaleString('fr-FR')}` } },
+      xAxis: {
+        type: 'value',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        axisLabel: { formatter: (v: any) => `€${(Number(v) / 1000).toFixed(0)}k`, color: '#94a3b8' },
+        splitLine: { lineStyle: { type: 'dashed', color: '#e2e8f0' } },
+      },
+      yAxis: {
+        type: 'category',
+        data: names,
+        axisLabel: { color: '#64748b' },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: [{
+        type: 'bar',
+        data: values,
+        barMaxWidth: 28,
+        itemStyle: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          color: (params: any) => PALETTE[params.dataIndex % PALETTE.length],
+          borderRadius: [0, 4, 4, 0],
         },
-      },
+      }],
     };
-    this.chart = new Chart(this.canvasRef.nativeElement, config);
-  }
-
-  ngOnDestroy(): void {
-    this.chart?.destroy();
-  }
+  });
 }
