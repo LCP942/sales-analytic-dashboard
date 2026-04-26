@@ -16,6 +16,7 @@ export class RevenueChartComponent {
   protected chartOption = computed<EChartsCoreOption>(() => {
     const points = this.data();
     return {
+      animationEasingUpdate: 'cubicOut',
       grid: { left: 58, right: 16, top: 12, bottom: 32 },
       tooltip: {
         trigger: 'axis',
