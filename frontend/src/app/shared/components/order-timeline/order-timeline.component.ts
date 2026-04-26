@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { OrderStatus } from '../../../core/models/order.models';
 
 type StepState = 'done' | 'active' | 'upcoming';
@@ -26,7 +26,7 @@ function stepState(stepIndex: number, activeIndex: number): StepState {
 @Component({
   selector: 'app-order-timeline',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './order-timeline.component.html',
   styleUrls: ['./order-timeline.component.scss'],
 })

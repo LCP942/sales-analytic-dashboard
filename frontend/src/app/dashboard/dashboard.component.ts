@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, switchMap } from 'rxjs';
 import { FilterService } from '../core/services/filter.service';
@@ -17,15 +17,14 @@ import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/sk
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     KpiCardsComponent,
     RevenueChartComponent,
     TopProductsChartComponent,
     CategoryChartComponent,
     WeekdayHeatmapComponent,
     FilterStripComponent,
-    SkeletonLoaderComponent,
-  ],
+    SkeletonLoaderComponent
+],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent {
