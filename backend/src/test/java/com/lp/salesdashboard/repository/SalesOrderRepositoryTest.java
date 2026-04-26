@@ -2,7 +2,10 @@ package com.lp.salesdashboard.repository;
 
 import com.lp.salesdashboard.dto.KpiRawDto;
 import com.lp.salesdashboard.dto.RevenuePointDto;
+import com.lp.salesdashboard.entity.Customer;
+import com.lp.salesdashboard.entity.OrderStatus;
 import com.lp.salesdashboard.entity.SalesOrder;
+import com.lp.salesdashboard.projection.DailyOrderCountProjection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +34,16 @@ class SalesOrderRepositoryTest {
     private static final LocalDate JAN_01 = LocalDate.of(2026, 1, 1);
     private static final LocalDate JAN_31 = LocalDate.of(2026, 1, 31);
 
+    private Customer customer;
+
     @BeforeEach
     void setUp() {
+        Customer c = new Customer();
+        c.setName("Test Customer");
+        c.setEmail("test@example.com");
+        c.setCity("Paris");
+        customer = em.persist(c);
+
         persist(LocalDate.of(2026, 1, 10), "100.00");
         persist(LocalDate.of(2026, 1, 20), "200.00");
         persist(LocalDate.of(2026, 2, 5),  "999.00"); // outside range
@@ -49,11 +60,11 @@ class SalesOrderRepositoryTest {
     }
 
     @Test
-    void findKpiMetrics_returnsZeroForEmptyRange() {
+    void findKpiMetrics_returnsNullRevenueForEmptyRange() {
         KpiRawDto kpi = repo.findKpiMetrics(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31));
 
         assertThat(kpi.orderCount()).isEqualTo(0L);
-        assertThat(kpi.revenue()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(kpi.revenue()).isNull();
     }
 
     @Test
@@ -81,7 +92,7 @@ class SalesOrderRepositoryTest {
 
     @Test
     void findDailyOrderCount_returnsCountPerDay() {
-        List<Object[]> rows = repo.findDailyOrderCount(JAN_01, JAN_31);
+        List<DailyOrderCountProjection> rows = repo.findDailyOrderCount(JAN_01, JAN_31);
 
         assertThat(rows).hasSize(2);
     }
@@ -92,7 +103,8 @@ class SalesOrderRepositoryTest {
         SalesOrder order = new SalesOrder();
         order.setOrderDate(date);
         order.setTotalAmount(new BigDecimal(amount));
-        order.setCustomerName("Test Customer");
+        order.setCustomer(customer);
+        order.setStatus(OrderStatus.DELIVERED);
         em.persist(order);
     }
 }

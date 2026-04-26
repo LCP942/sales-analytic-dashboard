@@ -1,8 +1,12 @@
 package com.lp.salesdashboard.repository;
 
+import com.lp.salesdashboard.entity.Customer;
 import com.lp.salesdashboard.entity.OrderItem;
+import com.lp.salesdashboard.entity.OrderStatus;
 import com.lp.salesdashboard.entity.Product;
 import com.lp.salesdashboard.entity.SalesOrder;
+import com.lp.salesdashboard.projection.CategoryProjection;
+import com.lp.salesdashboard.projection.TopProductProjection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +36,14 @@ class OrderItemRepositoryTest {
     private static final LocalDate JAN_01 = LocalDate.of(2026, 1, 1);
     private static final LocalDate JAN_31 = LocalDate.of(2026, 1, 31);
 
+    private Customer customer;
     private Product laptop;
     private Product phone;
 
     @BeforeEach
     void setUp() {
+        customer = customer("Test Customer", "test@example.com", "Paris");
+
         laptop = product("Laptop", "Electronics", "999.99");
         phone  = product("Phone",  "Electronics", "499.99");
         Product book = product("Novel", "Books", "19.99");
@@ -55,41 +62,48 @@ class OrderItemRepositoryTest {
 
     @Test
     void findTopProducts_ranksProductsByRevenueDescending() {
-        List<Object[]> rows = repo.findTopProducts(JAN_01, JAN_31, PageRequest.of(0, 10));
+        List<TopProductProjection> rows = repo.findTopProducts(JAN_01, JAN_31, PageRequest.of(0, 10));
 
         assertThat(rows).hasSize(3);
-        assertThat(rows.get(0)[0]).isEqualTo("Laptop");   // highest revenue
-        assertThat(rows.get(1)[0]).isEqualTo("Phone");
+        assertThat(rows.get(0).getName()).isEqualTo("Laptop");   // highest revenue
+        assertThat(rows.get(1).getName()).isEqualTo("Phone");
     }
 
     @Test
     void findTopProducts_respectsPageableLimit() {
-        List<Object[]> rows = repo.findTopProducts(JAN_01, JAN_31, PageRequest.of(0, 1));
+        List<TopProductProjection> rows = repo.findTopProducts(JAN_01, JAN_31, PageRequest.of(0, 1));
 
         assertThat(rows).hasSize(1);
-        assertThat(rows.get(0)[0]).isEqualTo("Laptop");
+        assertThat(rows.get(0).getName()).isEqualTo("Laptop");
     }
 
     @Test
     void findTopProducts_excludesOrdersOutsideRange() {
         // Feb order has one laptop — in the full range it should NOT inflate Jan totals
-        List<Object[]> rows = repo.findTopProducts(JAN_01, JAN_31, PageRequest.of(0, 10));
+        List<TopProductProjection> rows = repo.findTopProducts(JAN_01, JAN_31, PageRequest.of(0, 10));
 
-        BigDecimal laptopRevenue = new BigDecimal(rows.get(0)[1].toString());
-        assertThat(laptopRevenue).isEqualByComparingTo("1999.98");
+        assertThat(rows.get(0).getRevenue()).isEqualByComparingTo("1999.98");
     }
 
     @Test
     void findOrdersByCategory_groupsCorrectly() {
-        List<Object[]> rows = repo.findOrdersByCategory(JAN_01, JAN_31);
+        List<CategoryProjection> rows = repo.findOrdersByCategory(JAN_01, JAN_31);
 
         assertThat(rows).hasSize(2); // Electronics, Books
-        Object[] electronics = rows.get(0);
-        assertThat(electronics[0]).isEqualTo("Electronics");
-        assertThat(((Number) electronics[1]).longValue()).isEqualTo(3L); // laptop×2 + phone×1
+        CategoryProjection electronics = rows.get(0);
+        assertThat(electronics.getCategory()).isEqualTo("Electronics");
+        assertThat(electronics.getItemCount()).isEqualTo(3L); // laptop×2 + phone×1
     }
 
     // -------------------------------------------------------------------------
+
+    private Customer customer(String name, String email, String city) {
+        Customer c = new Customer();
+        c.setName(name);
+        c.setEmail(email);
+        c.setCity(city);
+        return em.persist(c);
+    }
 
     private Product product(String name, String category, String price) {
         Product p = new Product();
@@ -103,7 +117,8 @@ class OrderItemRepositoryTest {
         SalesOrder o = new SalesOrder();
         o.setOrderDate(date);
         o.setTotalAmount(BigDecimal.ZERO);
-        o.setCustomerName("Test Customer");
+        o.setCustomer(customer);
+        o.setStatus(OrderStatus.DELIVERED);
         return em.persist(o);
     }
 

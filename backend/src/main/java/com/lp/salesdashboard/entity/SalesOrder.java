@@ -47,5 +47,6 @@ public class SalesOrder {
 
     public void setOrderDate(LocalDate orderDate) { this.orderDate = orderDate; }
     public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
-    public void setCustomerName(String ignored) { /* H2 test compat — production uses customer FK */ }
+    public void setCustomer(Customer customer) { this.customer = customer; }
+    public void setStatus(OrderStatus status) { this.status = status; }
 }

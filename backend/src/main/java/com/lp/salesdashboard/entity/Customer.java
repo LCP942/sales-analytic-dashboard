@@ -23,4 +23,8 @@ public class Customer {
     public String getName() { return name; }
     public String getEmail() { return email; }
     public String getCity() { return city; }
+
+    public void setName(String name) { this.name = name; }
+    public void setEmail(String email) { this.email = email; }
+    public void setCity(String city) { this.city = city; }
 }
