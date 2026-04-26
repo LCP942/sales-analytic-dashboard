@@ -3,8 +3,8 @@ package com.lp.salesdashboard.dto;
 import java.math.BigDecimal;
 
 /**
- * Raw aggregate returned directly from JPQL constructor expression.
- * Java 21 Record — immutable by design, equals/hashCode/toString generated.
+ * Raw aggregate returned directly from a JPQL constructor expression.
+ * {@code revenue} may be {@code null} when the date range contains no orders.
  */
 public record KpiRawDto(
         BigDecimal revenue,

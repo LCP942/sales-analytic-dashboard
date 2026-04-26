@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/** Handles order retrieval with filtering, pagination, and full detail assembly. */
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -43,6 +44,10 @@ public class OrderService {
                         o.getStatus()));
     }
 
+    /**
+     * Loads a full order detail: line items with subtotals, and a customer summary
+     * (lifetime order count and revenue). Throws 404 if the order does not exist.
+     */
     public OrderDetailDto getOrder(Long id) {
         SalesOrder order = repo.findWithItemsById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: " + id));

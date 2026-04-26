@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+/** Provides aggregated statistics for the dashboard: KPIs, revenue trends, top products, and order breakdowns. */
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -39,6 +40,10 @@ public class StatsService {
     // KPIs
     // -------------------------------------------------------------------------
 
+    /**
+     * Returns KPI metrics for the given range, with growth rates compared
+     * to the immediately preceding period of equal length.
+     */
     public KpiMetricsDto getKpis(LocalDate from, LocalDate to) {
         KpiRawDto current = normalize(orderRepo.findKpiMetrics(from, to));
 
@@ -70,6 +75,10 @@ public class StatsService {
     // Revenue over time
     // -------------------------------------------------------------------------
 
+    /**
+     * Returns revenue aggregated at a granularity that fits the range:
+     * ≤ 31 days → daily, ≤ 90 days → weekly (Monday-anchored), otherwise → monthly (YYYY-MM).
+     */
     public List<RevenuePointDto> getRevenueOverTime(LocalDate from, LocalDate to) {
         List<RevenuePointDto> daily = orderRepo.findDailyRevenue(from, to);
         long days = ChronoUnit.DAYS.between(from, to);
@@ -83,6 +92,7 @@ public class StatsService {
     // Order count over time
     // -------------------------------------------------------------------------
 
+    /** Same granularity logic as {@link #getRevenueOverTime}, counting orders instead of summing revenue. */
     public List<RevenuePointDto> getOrderCountOverTime(LocalDate from, LocalDate to) {
         long days = ChronoUnit.DAYS.between(from, to);
 
@@ -121,6 +131,7 @@ public class StatsService {
     // Orders by weekday
     // -------------------------------------------------------------------------
 
+    /** Aggregates orders by day-of-week across the full range. Days with no orders are included with zero counts. */
     public List<WeekdayStatDto> getOrdersByWeekday(LocalDate from, LocalDate to) {
         Map<DayOfWeek, Long> counts = new EnumMap<>(DayOfWeek.class);
         Map<DayOfWeek, BigDecimal> revenues = new EnumMap<>(DayOfWeek.class);

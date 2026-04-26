@@ -22,10 +22,15 @@ import java.util.Optional;
 
 public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, JpaSpecificationExecutor<SalesOrder> {
 
+    /** Overrides the default to eagerly load {@code customer} via an EntityGraph, preventing N+1 queries when mapping the results page. */
     @Override
     @EntityGraph(attributePaths = "customer")
     Page<SalesOrder> findAll(Specification<SalesOrder> spec, Pageable pageable);
 
+    /**
+     * Returns total revenue and order count for the given date range.
+     * {@code revenue} in the result may be {@code null} if no orders exist in the range.
+     */
     @Query("""
             SELECT new com.lp.salesdashboard.dto.KpiRawDto(
                 SUM(o.totalAmount),
@@ -57,6 +62,7 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
             """)
     List<DailyOrderCountProjection> findDailyOrderCount(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
+    /** Fetches the order with customer, items, and products in a single query. Use this for the detail view to avoid lazy-loading round-trips. */
     @Query("SELECT o FROM SalesOrder o JOIN FETCH o.customer JOIN FETCH o.items i JOIN FETCH i.product WHERE o.id = :id")
     Optional<SalesOrder> findWithItemsById(@Param("id") Long id);
 
@@ -68,9 +74,11 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
             """)
     List<DailyStatProjection> findDailyStats(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
+    /** Returns the total number of orders placed by a customer, used for the customer summary panel. */
     @Query("SELECT COUNT(o) FROM SalesOrder o WHERE o.customer.id = :customerId")
     long countByCustomerId(@Param("customerId") Long customerId);
 
+    /** Returns the lifetime revenue for a customer. {@code COALESCE} ensures 0 is returned rather than {@code null} when no orders exist. */
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM SalesOrder o WHERE o.customer.id = :customerId")
     BigDecimal sumTotalByCustomerId(@Param("customerId") Long customerId);
 }

@@ -11,12 +11,18 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 import java.util.List;
 
+/** Factory for JPA {@link Specification} predicates used to filter {@link SalesOrder} queries. */
 public class OrderSpecifications {
 
     public static Specification<SalesOrder> betweenDates(LocalDate from, LocalDate to) {
         return (root, query, cb) -> cb.between(root.get("orderDate"), from, to);
     }
 
+    /**
+     * Case-insensitive LIKE filter on the associated customer's name.
+     * Returns {@code null} (no restriction) when the value is blank.
+     * LIKE special characters ({@code %}, {@code _}, {@code \}) are escaped before pattern construction.
+     */
     public static Specification<SalesOrder> customerContains(String customer) {
         if (customer == null || customer.isBlank()) return null;
         String pattern = "%" + customer.toLowerCase().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
@@ -26,6 +32,7 @@ public class OrderSpecifications {
         };
     }
 
+    /** IN filter on order status. Returns {@code null} (no restriction) when the list is null or empty. */
     public static Specification<SalesOrder> statusIn(List<OrderStatus> statuses) {
         if (statuses == null || statuses.isEmpty()) return null;
         return (root, query, cb) -> {

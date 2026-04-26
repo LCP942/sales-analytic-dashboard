@@ -5,6 +5,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * CORS configuration — restricts cross-origin access to GET requests only.
+ * Allowed origins are set via {@code app.cors.allowed-origins} (comma-separated list).
+ */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 

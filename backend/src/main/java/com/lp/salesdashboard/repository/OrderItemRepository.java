@@ -13,6 +13,11 @@ import java.util.List;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
+    /**
+     * Ranks products by total revenue ({@code quantity × unit_price}) within the date range.
+     * Native query — JPQL does not support the {@code GROUP BY p.id} with Pageable in all JPA providers.
+     * {@code Pageable} controls the result count (use {@code PageRequest.of(0, n)}).
+     */
     @Query(value = """
             SELECT p.name AS name, SUM(oi.quantity * oi.unit_price) AS revenue
             FROM order_items oi
@@ -27,6 +32,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             @Param("to") LocalDate to,
             Pageable pageable);
 
+    /** Aggregates item quantities sold per product category within the date range, ordered by volume descending. */
     @Query(value = """
             SELECT p.category AS category, SUM(oi.quantity) AS itemCount
             FROM order_items oi
