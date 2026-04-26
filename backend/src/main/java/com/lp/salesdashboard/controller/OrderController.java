@@ -4,6 +4,7 @@ import com.lp.salesdashboard.dto.OrderDetailDto;
 import com.lp.salesdashboard.dto.OrderSummaryDto;
 import com.lp.salesdashboard.entity.OrderStatus;
 import com.lp.salesdashboard.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,13 +20,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService service;
-
-    public OrderController(OrderService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public Page<OrderSummaryDto> getOrders(

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,13 +23,10 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class OrderService {
 
     private final SalesOrderRepository repo;
-
-    public OrderService(SalesOrderRepository repo) {
-        this.repo = repo;
-    }
 
     public Page<OrderSummaryDto> getOrders(LocalDate from, LocalDate to, String customer, List<OrderStatus> statuses, Pageable pageable) {
         Specification<SalesOrder> spec = Specification

@@ -1,10 +1,14 @@
 package com.lp.salesdashboard.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+@Getter
+@ToString(exclude = {"customer", "items"})
 @Entity
 @Table(name = "sales_orders")
 public class SalesOrder {
@@ -13,16 +17,20 @@ public class SalesOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(name = "order_date", nullable = false)
     private LocalDate orderDate;
 
+    @Setter
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private OrderStatus status;
@@ -35,18 +43,4 @@ public class SalesOrder {
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderItem> items;
-
-    public Long getId() { return id; }
-    public LocalDate getOrderDate() { return orderDate; }
-    public BigDecimal getTotalAmount() { return totalAmount; }
-    public Customer getCustomer() { return customer; }
-    public OrderStatus getStatus() { return status; }
-    public String getPaymentMethod() { return paymentMethod; }
-    public BigDecimal getShippingAmount() { return shippingAmount; }
-    public List<OrderItem> getItems() { return items; }
-
-    public void setOrderDate(LocalDate orderDate) { this.orderDate = orderDate; }
-    public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
-    public void setCustomer(Customer customer) { this.customer = customer; }
-    public void setStatus(OrderStatus status) { this.status = status; }
 }

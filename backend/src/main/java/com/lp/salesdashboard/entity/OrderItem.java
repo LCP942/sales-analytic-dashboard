@@ -1,8 +1,13 @@
 package com.lp.salesdashboard.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.math.BigDecimal;
 
+@Getter
+@Setter
+@ToString(exclude = {"order", "product"})
 @Entity
 @Table(name = "order_items")
 public class OrderItem {
@@ -24,16 +29,4 @@ public class OrderItem {
 
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
-
-    public Long getId() { return id; }
-    public SalesOrder getOrder() { return order; }
-    public Product getProduct() { return product; }
-    public Integer getQuantity() { return quantity; }
-    public BigDecimal getUnitPrice() { return unitPrice; }
-
-    public void setId(Long id) { this.id = id; }
-    public void setOrder(SalesOrder order) { this.order = order; }
-    public void setProduct(Product product) { this.product = product; }
-    public void setQuantity(Integer quantity) { this.quantity = quantity; }
-    public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
 }

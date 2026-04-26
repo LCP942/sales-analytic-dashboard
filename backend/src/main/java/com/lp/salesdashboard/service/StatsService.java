@@ -8,6 +8,7 @@ import com.lp.salesdashboard.projection.TopProductProjection;
 import java.util.EnumMap;
 import com.lp.salesdashboard.repository.OrderItemRepository;
 import com.lp.salesdashboard.repository.SalesOrderRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,17 +27,13 @@ import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class StatsService {
 
     private static final int TOP_PRODUCTS_LIMIT = 10;
 
     private final SalesOrderRepository orderRepo;
     private final OrderItemRepository itemRepo;
-
-    public StatsService(SalesOrderRepository orderRepo, OrderItemRepository itemRepo) {
-        this.orderRepo = orderRepo;
-        this.itemRepo = itemRepo;
-    }
 
     // -------------------------------------------------------------------------
     // KPIs
