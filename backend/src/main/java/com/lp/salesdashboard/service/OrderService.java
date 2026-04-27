@@ -29,11 +29,19 @@ public class OrderService {
 
     private final SalesOrderRepository repo;
 
-    public Page<OrderSummaryDto> getOrders(LocalDate from, LocalDate to, String customer, List<OrderStatus> statuses, Pageable pageable) {
+    public Page<OrderSummaryDto> getOrders(
+            LocalDate from, LocalDate to,
+            String customer, List<OrderStatus> statuses,
+            BigDecimal minAmount, BigDecimal maxAmount,
+            List<String> categories, String product,
+            Pageable pageable) {
         Specification<SalesOrder> spec = Specification
                 .where(OrderSpecifications.betweenDates(from, to))
                 .and(OrderSpecifications.customerContains(customer))
-                .and(OrderSpecifications.statusIn(statuses));
+                .and(OrderSpecifications.statusIn(statuses))
+                .and(OrderSpecifications.amountBetween(minAmount, maxAmount))
+                .and(OrderSpecifications.categoryIn(categories))
+                .and(OrderSpecifications.productContains(product));
 
         return repo.findAll(spec, pageable)
                 .map(o -> new OrderSummaryDto(

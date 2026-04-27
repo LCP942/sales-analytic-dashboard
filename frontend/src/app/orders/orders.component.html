@@ -5,7 +5,7 @@
       <p class="orders-page__subtitle">{{ totalElements() }} orders found</p>
     </div>
     <button class="orders-page__export-btn"
-            (click)="exportExcel()"
+            (click)="exportCsv()"
             [disabled]="exporting() || totalElements() === 0"
             [title]="totalElements() === 0 ? 'No orders to export' : 'Export to CSV'">
       @if (exporting()) {
@@ -17,7 +17,8 @@
     </button>
   </div>
 
-  <app-order-filters (filtersChange)="onFiltersChange($event)" />
+  <app-order-filters
+    (filtersChange)="onFiltersChange($event)" />
 
   <div class="orders-card">
     @if (!hasLoaded() && loading()) {

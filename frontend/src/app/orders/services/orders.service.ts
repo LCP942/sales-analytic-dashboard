@@ -17,6 +17,10 @@ export class OrdersService {
     page: number,
     size: number,
     sort = 'orderDate,desc',
+    minAmount?: number | null,
+    maxAmount?: number | null,
+    categories: string[] = [],
+    product = '',
   ): Observable<PageResponse<OrderSummary>> {
     let params = new HttpParams()
       .set('from', from)
@@ -24,11 +28,13 @@ export class OrdersService {
       .set('customer', customer)
       .set('page', page)
       .set('size', size)
-      .set('sort', sort);
+      .set('sort', sort)
+      .set('product', product);
 
-    if (statuses.length > 0) {
-      params = params.set('statuses', statuses.join(','));
-    }
+    if (statuses.length > 0)   params = params.set('statuses', statuses.join(','));
+    if (categories.length > 0) params = params.set('categories', categories.join(','));
+    if (minAmount != null) params = params.set('minAmount', minAmount);
+    if (maxAmount != null) params = params.set('maxAmount', maxAmount);
 
     return this.http.get<PageResponse<OrderSummary>>(this.base, { params });
   }
@@ -36,4 +42,5 @@ export class OrdersService {
   getOrder(id: number): Observable<OrderDetail> {
     return this.http.get<OrderDetail>(`${this.base}/${id}`);
   }
+
 }

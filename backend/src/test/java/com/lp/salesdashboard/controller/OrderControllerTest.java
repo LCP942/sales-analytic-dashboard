@@ -61,7 +61,9 @@ class OrderControllerTest {
 
     @Test
     void getOrders_returns200WithPageContent() throws Exception {
-        given(orderService.getOrders(any(), any(), anyString(), anyList(), any(Pageable.class)))
+        given(orderService.getOrders(
+                any(), any(), anyString(), anyList(),
+                any(), any(), anyList(), anyString(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(summaryDto())));
 
         mvc.perform(get("/api/orders").param("from", FROM).param("to", TO))
@@ -76,7 +78,7 @@ class OrderControllerTest {
         given(orderService.getOrders(
                 any(), any(), anyString(),
                 eq(List.of(OrderStatus.PENDING, OrderStatus.SHIPPED)),
-                any(Pageable.class)))
+                any(), any(), anyList(), anyString(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of()));
 
         mvc.perform(get("/api/orders")

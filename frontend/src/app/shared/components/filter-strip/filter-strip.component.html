@@ -17,6 +17,7 @@
     <input class="filter-strip__date"
            [matDatepicker]="fromPicker"
            [value]="fromDate()"
+           [max]="toDate()"
            (dateChange)="onFromChange($event.value)"
            (click)="fromPicker.open()"
            readonly
@@ -26,6 +27,7 @@
     <input class="filter-strip__date"
            [matDatepicker]="toPicker"
            [value]="toDate()"
+           [min]="fromDate()"
            (dateChange)="onToChange($event.value)"
            (click)="toPicker.open()"
            readonly

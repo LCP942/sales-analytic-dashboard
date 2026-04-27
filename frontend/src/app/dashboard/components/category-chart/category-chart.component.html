@@ -2,6 +2,6 @@
   @if (data().length === 0) {
     <p class="empty-state">No data for this period</p>
   } @else {
-    <div echarts [options]="chartOption()" class="chart"></div>
+    <div echarts [options]="chartOption()" class="chart" (chartClick)="onSliceClick($event)"></div>
   }
 </div>

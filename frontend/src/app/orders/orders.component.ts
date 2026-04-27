@@ -1,7 +1,7 @@
-import { Component, DestroyRef, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { Component, AfterViewInit, DestroyRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule, Sort } from '@angular/material/sort';
@@ -13,11 +13,16 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRippleModule } from '@angular/material/core';
 
 import { OrdersService } from './services/orders.service';
-import { OrderStatus, OrderSummary } from '../core/models/order.models';
+import { OrderSummary } from '../core/models/order.models';
 import { StatusBadgeComponent } from '../shared/components/status-badge/status-badge.component';
 import { OrderFiltersComponent, OrderFilters } from '../shared/components/order-filters/order-filters.component';
 
-const toIso = (d: Date) => d.toISOString().split('T')[0];
+function toIso(d: Date): string { return d.toISOString().split('T')[0]; }
+function yearAgo(): string {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 1);
+  return toIso(d);
+}
 
 @Component({
   selector: 'app-orders',
@@ -38,38 +43,56 @@ const toIso = (d: Date) => d.toISOString().split('T')[0];
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
-export class OrdersComponent implements OnInit {
+export class OrdersComponent implements OnInit, AfterViewInit {
   @ViewChild(OrderFiltersComponent) private filtersRef!: OrderFiltersComponent;
 
   private readonly ordersService = inject(OrdersService);
-  private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly router        = inject(Router);
+  private readonly route         = inject(ActivatedRoute);
+  private readonly destroyRef    = inject(DestroyRef);
 
   columns = ['id', 'orderDate', 'customerName', 'status', 'totalAmount', 'actions'];
   pageSize = 10;
 
-  orders = signal<OrderSummary[]>([]);
+  orders        = signal<OrderSummary[]>([]);
   totalElements = signal(0);
-  pageIndex = signal(0);
-  loading = signal(false);
-  hasLoaded = signal(false);
-  exporting = signal(false);
+  pageIndex     = signal(0);
+  loading       = signal(false);
+  hasLoaded     = signal(false);
+  exporting     = signal(false);
 
-  private activeFilters: OrderFilters = { statuses: [], search: '' };
+  private activeFilters: OrderFilters = {
+    statuses:   [],
+    search:     '',
+    minAmount:  null,
+    maxAmount:  null,
+    from:       yearAgo(),
+    to:         toIso(new Date()),
+    categories: [],
+    product:    '',
+  };
+
   private activeSort = 'orderDate,desc';
 
-  private get from(): string {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() - 1);
-    return toIso(d);
-  }
-
-  private get to(): string {
-    return toIso(new Date());
-  }
+  // Pre-fill from drill-down query params (set before AfterViewInit)
+  private preloadCategory = '';
+  private preloadProduct  = '';
 
   ngOnInit(): void {
+    const params = this.route.snapshot.queryParams;
+    this.preloadCategory = params['category'] ?? '';
+    this.preloadProduct  = params['product']  ?? '';
+
+    if (this.preloadCategory) this.activeFilters.categories = [this.preloadCategory];
+    if (this.preloadProduct)  this.activeFilters.product    = this.preloadProduct;
+
     this.load();
+  }
+
+  ngAfterViewInit(): void {
+    if (this.preloadCategory || this.preloadProduct) {
+      this.filtersRef.applyExternalFilters(this.preloadCategory, this.preloadProduct);
+    }
   }
 
   onFiltersChange(filters: OrderFilters): void {
@@ -98,15 +121,16 @@ export class OrdersComponent implements OnInit {
     this.filtersRef.reset();
   }
 
-  exportExcel(): void {
+  exportCsv(): void {
     if (this.exporting() || this.totalElements() === 0) return;
     this.exporting.set(true);
+    const f = this.activeFilters;
     this.ordersService.getOrders(
-      this.from, this.to,
-      this.activeFilters.search,
-      this.activeFilters.statuses,
+      f.from, f.to,
+      f.search, f.statuses,
       0, this.totalElements(),
       this.activeSort,
+      f.minAmount, f.maxAmount, f.categories, f.product,
     ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: page => {
         const headers = ['ID', 'Date', 'Customer', 'Status', 'Total (EUR)'];
@@ -116,7 +140,7 @@ export class OrdersComponent implements OnInit {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `orders-${this.from}-to-${this.to}.csv`;
+        a.download = `orders-${f.from}-to-${f.to}.csv`;
         a.click();
         URL.revokeObjectURL(url);
         this.exporting.set(false);
@@ -127,14 +151,13 @@ export class OrdersComponent implements OnInit {
 
   private load(): void {
     this.loading.set(true);
+    const f = this.activeFilters;
     this.ordersService.getOrders(
-      this.from,
-      this.to,
-      this.activeFilters.search,
-      this.activeFilters.statuses,
-      this.pageIndex(),
-      this.pageSize,
+      f.from, f.to,
+      f.search, f.statuses,
+      this.pageIndex(), this.pageSize,
       this.activeSort,
+      f.minAmount, f.maxAmount, f.categories, f.product,
     ).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({

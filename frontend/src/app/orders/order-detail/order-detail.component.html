@@ -1,9 +1,11 @@
 <div class="detail-page">
 
-  <button class="back-btn" mat-button (click)="back()">
-    <mat-icon>arrow_back</mat-icon>
-    Back to Orders
-  </button>
+  <div class="detail-actions">
+    <button class="back-btn" mat-button (click)="back()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Orders
+    </button>
+  </div>
 
   <div class="detail-header">
     <div class="detail-header__left">
@@ -101,6 +103,81 @@
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
       <tr mat-row *matRowDef="let row; columns: columns"></tr>
     </table>
+  </div>
+
+  <!-- Inline invoice preview -->
+  <div class="detail-card detail-card--pdf">
+    <div class="detail-card__header">
+      <h2 class="detail-card__title">Invoice preview</h2>
+      <div class="invoice-actions">
+        <button class="invoice-btn" (click)="downloadInvoice()" title="Download as HTML">
+          <mat-icon>download</mat-icon>
+          Download
+        </button>
+        <button class="invoice-btn" (click)="printInvoice()" title="Print invoice">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+      </div>
+    </div>
+    <div class="invoice-paper">
+
+        <div class="invoice-paper__meta">
+          <div>
+            <div class="invoice-paper__meta-label">BILL TO</div>
+            <div class="invoice-paper__meta-name">{{ order().customer.name }}</div>
+            <div class="invoice-paper__meta-info">{{ order().customer.email }}</div>
+            <div class="invoice-paper__meta-info">{{ order().customer.city }}</div>
+          </div>
+          <div>
+            <div class="invoice-paper__meta-label">PAYMENT</div>
+            <div class="invoice-paper__meta-name">{{ order().paymentMethod }}</div>
+          </div>
+        </div>
+
+        <table class="invoice-paper__table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th class="r">Qty</th>
+              <th class="r">Unit price</th>
+              <th class="r">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of order().items; track item.productName) {
+              <tr>
+                <td>{{ item.productName }}</td>
+                <td><span class="badge">{{ item.category }}</span></td>
+                <td class="r">× {{ item.quantity }}</td>
+                <td class="r">{{ item.unitPrice | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}</td>
+                <td class="r amount">{{ item.lineTotal | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="invoice-paper__totals">
+          <div class="invoice-paper__total-row">
+            <span>Subtotal</span>
+            <span>{{ order().subtotal | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}</span>
+          </div>
+          <div class="invoice-paper__total-row">
+            <span>Shipping</span>
+            <span>
+              @if (order().shippingAmount === 0) { Free }
+              @else { {{ order().shippingAmount | currency:'EUR':'symbol':'1.2-2':'fr-FR' }} }
+            </span>
+          </div>
+          <div class="invoice-paper__total-row invoice-paper__total-row--final">
+            <span>Total</span>
+            <span>{{ order().totalAmount | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}</span>
+          </div>
+        </div>
+
+        <div class="invoice-paper__footer">Thank you for your order.</div>
+      </div>
   </div>
 
 </div>

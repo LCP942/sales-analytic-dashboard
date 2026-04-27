@@ -1,17 +1,92 @@
 <div class="order-filters">
-  <mat-chip-listbox
-    multiple
-    aria-label="Filter by status"
-    [value]="chipValues()"
-    (change)="onChipChange($event)">
-    <mat-chip-option value="ALL">All</mat-chip-option>
-    @for (s of statusOptions; track s.value) {
-      <mat-chip-option [value]="s.value">{{ s.label }}</mat-chip-option>
-    }
-  </mat-chip-listbox>
 
-  <input class="order-filters__search"
-         [formControl]="searchControl"
-         aria-label="Search by customer name"
-         placeholder="Search customer…" />
+  <!-- Row 1: Period + Amount + Customer search -->
+  <div class="order-filters__row order-filters__row--main">
+
+    <div class="order-filters__group">
+      <span class="order-filters__label">Period</span>
+      <div class="order-filters__dates">
+        <input class="order-filters__date"
+               [matDatepicker]="fromPicker"
+               [value]="fromDate()"
+               [max]="toDate()"
+               (dateChange)="onFromChange($event.value)"
+               (click)="fromPicker.open()"
+               readonly
+               placeholder="From" />
+        <mat-datepicker #fromPicker />
+        <span class="order-filters__sep">→</span>
+        <input class="order-filters__date"
+               [matDatepicker]="toPicker"
+               [value]="toDate()"
+               [min]="fromDate()"
+               (dateChange)="onToChange($event.value)"
+               (click)="toPicker.open()"
+               readonly
+               placeholder="To" />
+        <mat-datepicker #toPicker />
+      </div>
+    </div>
+
+    <div class="order-filters__group">
+      <span class="order-filters__label">Amount (€)</span>
+      <div class="order-filters__amounts">
+        <input class="order-filters__amount"
+               type="number" min="0"
+               [formControl]="minAmountControl"
+               placeholder="Min" />
+        <span class="order-filters__sep">—</span>
+        <input class="order-filters__amount"
+               type="number" min="0"
+               [formControl]="maxAmountControl"
+               placeholder="Max" />
+      </div>
+    </div>
+
+    <input class="order-filters__search"
+           [formControl]="searchControl"
+           aria-label="Search by customer name"
+           placeholder="Search customer…" />
+  </div>
+
+  <!-- Row 2: Status chips + Reset button -->
+  <div class="order-filters__row">
+    <mat-chip-listbox
+      multiple
+      aria-label="Filter by status"
+      [value]="chipValues()"
+      (change)="onChipChange($event)">
+      <mat-chip-option value="ALL">All</mat-chip-option>
+      @for (s of statusOptions; track s.value) {
+        <mat-chip-option [value]="s.value">{{ s.label }}</mat-chip-option>
+      }
+    </mat-chip-listbox>
+
+    <button class="order-filters__reset-btn" type="button"
+            [disabled]="isDefault()"
+            (click)="reset()">
+      Clear filters
+    </button>
+  </div>
+
+  <!-- Row 3: Drill-down chips (category / product) -->
+  @if (selectedCategories().length > 0 || selectedProduct()) {
+    <div class="order-filters__row">
+      <div class="order-filters__drilldown-chips">
+        @for (cat of selectedCategories(); track cat) {
+          <span class="order-filters__drilldown-chip">
+            {{ cat }}
+            <button type="button" (click)="removeCategory(cat)" aria-label="Remove {{ cat }}">×</button>
+          </span>
+        }
+        @if (selectedProduct()) {
+          <span class="order-filters__drilldown-chip">
+            {{ selectedProduct() }}
+            <button type="button" (click)="clearProduct()" aria-label="Remove product filter">×</button>
+          </span>
+        }
+      </div>
+    </div>
+  }
+
 </div>

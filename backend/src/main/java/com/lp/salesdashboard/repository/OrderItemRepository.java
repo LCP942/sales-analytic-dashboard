@@ -43,4 +43,5 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             ORDER BY itemCount DESC
             """, nativeQuery = true)
     List<CategoryProjection> findOrdersByCategory(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
 }

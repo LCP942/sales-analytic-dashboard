@@ -23,7 +23,7 @@ describe('DashboardService', () => {
   afterEach(() => httpMock.verify());
 
   it('getKpis() calls GET /stats/kpis with correct params', () => {
-    const mockKpis: KpiMetrics = { revenue: 1000, orderCount: 10, avgOrderValue: 100, revenueGrowth: 5, orderGrowth: 3 };
+    const mockKpis: KpiMetrics = { revenue: 1000, orderCount: 10, avgOrderValue: 100, revenueGrowth: 5, orderGrowth: 3, avgOrderGrowth: 2 };
 
     service.getKpis(from, to).subscribe(data => expect(data).toEqual(mockKpis));
 

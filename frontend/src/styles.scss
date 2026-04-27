@@ -223,11 +223,26 @@ body {
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 
+  @media (max-width: 767px) {
+    padding: 16px;
+  }
+
   &__title {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
     margin: 0 0 16px;
     font-size: 20px;
     font-weight: 600;
     color: #334155;
+  }
+
+  &__hint {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--color-text-muted);
+    white-space: nowrap;
   }
 }
 
@@ -263,6 +278,23 @@ body {
 .snack-error .mdc-snackbar__surface {
   background: #dc2626 !important;
   color: #fff !important;
+}
+
+// ============================================================
+// Responsive: orders page header on mobile
+// ============================================================
+
+@media (max-width: 480px) {
+  .orders-page__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .orders-page__export-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 // ============================================================

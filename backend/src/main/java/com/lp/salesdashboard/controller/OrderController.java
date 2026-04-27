@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +32,12 @@ public class OrderController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(defaultValue = "") String customer,
             @RequestParam(required = false) String statuses,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(required = false) BigDecimal maxAmount,
+            @RequestParam(defaultValue = "") String categories,
+            @RequestParam(defaultValue = "") String product,
             @PageableDefault(size = 10, sort = "orderDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return service.getOrders(from, to, customer, parseStatuses(statuses), pageable);
+        return service.getOrders(from, to, customer, parseStatuses(statuses), minAmount, maxAmount, parseCategories(categories), product, pageable);
     }
 
     @GetMapping("/{id}")
@@ -51,6 +56,14 @@ public class OrderController {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status: " + s);
                     }
                 })
+                .toList();
+    }
+
+    private List<String> parseCategories(String categories) {
+        if (categories == null || categories.isBlank()) return List.of();
+        return Arrays.stream(categories.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
                 .toList();
     }
 }

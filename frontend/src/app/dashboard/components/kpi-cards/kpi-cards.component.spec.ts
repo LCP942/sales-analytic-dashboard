@@ -8,6 +8,7 @@ const mockKpis: KpiMetrics = {
   avgOrderValue: 148.82,
   revenueGrowth: 12.5,
   orderGrowth: -3.2,
+  avgOrderGrowth: 2.1,
 };
 
 describe('KpiCardsComponent', () => {

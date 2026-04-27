@@ -3,6 +3,8 @@ import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsCoreOption } from 'echarts/core';
 import { DataPoint } from '../../../core/models/stats.models';
 
+type TooltipParam = { name: string; value: number };
+
 @Component({
   selector: 'app-revenue-chart',
   standalone: true,
@@ -20,8 +22,8 @@ export class RevenueChartComponent {
       grid: { left: 58, right: 16, top: 12, bottom: 32 },
       tooltip: {
         trigger: 'axis',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: (p: any) => `<b>${p[0].name}</b><br/>€${Number(p[0].value).toLocaleString('fr-FR')}`,
+        formatter: (p: TooltipParam[]) =>
+          `<b>${p[0].name}</b><br/>€${Number(p[0].value).toLocaleString('fr-FR')}`,
       },
       xAxis: {
         type: 'category',
@@ -32,8 +34,7 @@ export class RevenueChartComponent {
       },
       yAxis: {
         type: 'value',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        axisLabel: { formatter: (v: any) => `€${(Number(v) / 1000).toFixed(0)}k`, color: '#94a3b8' },
+        axisLabel: { formatter: (v: number) => `€${(v / 1000).toFixed(0)}k`, color: '#94a3b8' },
         splitLine: { lineStyle: { type: 'dashed', color: '#e2e8f0' } },
       },
       series: [{

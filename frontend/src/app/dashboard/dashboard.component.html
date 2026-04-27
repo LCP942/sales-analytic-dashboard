@@ -46,8 +46,13 @@
         @if (isInitialLoad()) {
           <app-skeleton-loader height="280px" />
         } @else {
-          <h2 class="chart-card__title">Top products</h2>
-          <app-top-products-chart [data]="topProducts()" />
+          <h2 class="chart-card__title">
+            Top products
+            <span class="chart-card__hint">Click a bar to filter orders</span>
+          </h2>
+          <app-top-products-chart
+            [data]="topProducts()"
+            (productClick)="drillDownProduct($event)" />
         }
       </div>
 
@@ -55,8 +60,13 @@
         @if (isInitialLoad()) {
           <app-skeleton-loader height="280px" />
         } @else {
-          <h2 class="chart-card__title">Sales by category</h2>
-          <app-category-chart [data]="categories()" />
+          <h2 class="chart-card__title">
+            Sales by category
+            <span class="chart-card__hint">Click a slice to filter orders</span>
+          </h2>
+          <app-category-chart
+            [data]="categories()"
+            (categoryClick)="drillDownCategory($event)" />
         }
       </div>
     </div>

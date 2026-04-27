@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, switchMap } from 'rxjs';
@@ -23,24 +24,23 @@ import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/sk
     CategoryChartComponent,
     WeekdayHeatmapComponent,
     FilterStripComponent,
-    SkeletonLoaderComponent
-],
+    SkeletonLoaderComponent,
+  ],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent {
   private readonly filter = inject(FilterService);
-  private readonly stats = inject(DashboardService);
+  private readonly stats  = inject(DashboardService);
+  private readonly router = inject(Router);
 
-  kpis = signal<KpiMetrics | null>(null);
-  revenueData = signal<DataPoint[]>([]);
-  topProducts = signal<TopProduct[]>([]);
-  categories = signal<CategoryBreakdown[]>([]);
+  kpis         = signal<KpiMetrics | null>(null);
+  revenueData  = signal<DataPoint[]>([]);
+  topProducts  = signal<TopProduct[]>([]);
+  categories   = signal<CategoryBreakdown[]>([]);
   weekdayStats = signal<WeekdayStat[]>([]);
   isInitialLoad = signal(true);
 
   constructor() {
-    // combineLatest on Signals converted to Observables — all 5 endpoints reload simultaneously
-    // toObservable() requires injection context — constructor satisfies this requirement
     combineLatest([
       toObservable(this.filter.from),
       toObservable(this.filter.to),
@@ -68,5 +68,13 @@ export class DashboardComponent {
         },
         error: () => this.isInitialLoad.set(false),
       });
+  }
+
+  drillDownProduct(product: string): void {
+    this.router.navigate(['/orders'], { queryParams: { product } });
+  }
+
+  drillDownCategory(category: string): void {
+    this.router.navigate(['/orders'], { queryParams: { category } });
   }
 }

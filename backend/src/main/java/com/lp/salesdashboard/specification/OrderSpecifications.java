@@ -1,13 +1,10 @@
 package com.lp.salesdashboard.specification;
 
-import com.lp.salesdashboard.entity.Customer;
-import com.lp.salesdashboard.entity.OrderStatus;
-import com.lp.salesdashboard.entity.SalesOrder;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
+import com.lp.salesdashboard.entity.*;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -39,6 +36,60 @@ public class OrderSpecifications {
             CriteriaBuilder.In<OrderStatus> inClause = cb.in(root.get("status"));
             statuses.forEach(inClause::value);
             return inClause;
+        };
+    }
+
+    /** Range filter on {@code totalAmount}. Returns {@code null} when both bounds are null. */
+    public static Specification<SalesOrder> amountBetween(BigDecimal min, BigDecimal max) {
+        if (min == null && max == null) return null;
+        return (root, query, cb) -> {
+            if (min != null && max != null) return cb.between(root.get("totalAmount"), min, max);
+            if (min != null) return cb.greaterThanOrEqualTo(root.get("totalAmount"), min);
+            return cb.lessThanOrEqualTo(root.get("totalAmount"), max);
+        };
+    }
+
+    /**
+     * Correlated EXISTS subquery: keeps orders that contain at least one item
+     * whose product category is in the given list (case-insensitive).
+     * Uses a subquery instead of a direct join to stay compatible with the
+     * {@code @EntityGraph} fetch join on {@code customer} and avoid duplicates in pagination.
+     */
+    public static Specification<SalesOrder> categoryIn(List<String> categories) {
+        if (categories == null || categories.isEmpty()) return null;
+        List<String> lower = categories.stream().map(String::toLowerCase).toList();
+        return (root, query, cb) -> {
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<OrderItem> item = sub.from(OrderItem.class);
+            Join<OrderItem, Product> product = item.join("product", JoinType.INNER);
+            CriteriaBuilder.In<String> inClause = cb.in(cb.lower(product.get("category")));
+            lower.forEach(inClause::value);
+            sub.select(item.get("order").get("id"))
+               .where(cb.and(
+                   cb.equal(item.get("order").get("id"), root.get("id")),
+                   inClause
+               ));
+            return cb.exists(sub);
+        };
+    }
+
+    /**
+     * Correlated EXISTS subquery: keeps orders that contain at least one item
+     * whose product name matches the given pattern (case-insensitive LIKE).
+     */
+    public static Specification<SalesOrder> productContains(String productName) {
+        if (productName == null || productName.isBlank()) return null;
+        String pattern = "%" + productName.toLowerCase().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+        return (root, query, cb) -> {
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<OrderItem> item = sub.from(OrderItem.class);
+            Join<OrderItem, Product> product = item.join("product", JoinType.INNER);
+            sub.select(item.get("order").get("id"))
+               .where(cb.and(
+                   cb.equal(item.get("order").get("id"), root.get("id")),
+                   cb.like(cb.lower(product.get("name")), pattern)
+               ));
+            return cb.exists(sub);
         };
     }
 }
