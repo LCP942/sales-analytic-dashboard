@@ -24,9 +24,6 @@
   @media (max-width: 767px) { transform: translateX(0); }
 }
 
-// Brand icon color (overrides Material default)
-.sidebar-brand-icon { color: #3b82f6; font-size: 26px; }
-
 // Active nav link (applied via routerLinkActive)
 .nav-link--active {
   background: rgba(59, 130, 246, 0.18);
