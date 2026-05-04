@@ -1,12 +1,5 @@
-// Remove browser number-input spinners on amount fields
 .amount-input {
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button { -webkit-appearance: none; }
   -moz-appearance: textfield;
-}
-
-// Reset button: hover only when enabled (Tailwind has no hover:enabled: variant)
-button:hover:not(:disabled) {
-  background: #e2e8f0;
-  color: #0f172a;
 }

@@ -10,7 +10,7 @@
         <mat-icon>add</mat-icon>
         New order
       </button>
-      <button class="export-btn flex items-center gap-1.5 py-2 px-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] font-medium text-slate-500 dark:text-slate-400 cursor-pointer whitespace-nowrap flex-shrink-0 transition-[background,color] duration-[120ms] max-[480px]:flex-1 max-[480px]:justify-center"
+      <button class="flex items-center gap-1.5 py-2 px-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] font-medium text-slate-500 dark:text-slate-400 cursor-pointer whitespace-nowrap flex-shrink-0 transition-[background,color] duration-[120ms] max-[480px]:flex-1 max-[480px]:justify-center enabled:hover:bg-slate-200 dark:enabled:hover:bg-slate-700 enabled:hover:text-slate-900 dark:enabled:hover:text-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
               (click)="exportCsv()"
               [disabled]="exporting() || totalElements() === 0"
               [title]="totalElements() === 0 ? 'No orders to export' : 'Export to CSV'">

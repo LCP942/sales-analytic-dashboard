@@ -1,11 +1,11 @@
-<div class="heatmap">
+<div class="grid grid-cols-7 gap-2 max-[639px]:gap-1">
   @for (cell of cells(); track cell.day) {
-    <div class="heatmap__cell"
+    <div class="heatmap__cell flex flex-col items-center gap-1 py-[14px] px-2 rounded-[10px] transition-[background] duration-200 max-[639px]:py-[10px] max-[639px]:px-1 max-[639px]:gap-0.5 max-[639px]:rounded-lg"
          [style.--intensity]="cell.intensity">
-      <span class="heatmap__day">{{ cell.label }}</span>
-      <span class="heatmap__count">{{ cell.orderCount }}</span>
-      <span class="heatmap__label">orders</span>
-      <span class="heatmap__revenue">{{ cell.revenue | currency:'EUR':'symbol':'1.0-0':'fr-FR' }}</span>
+      <span class="text-[11px] font-semibold uppercase tracking-[0.05em] text-slate-500 dark:text-slate-400 max-[639px]:text-[10px]">{{ cell.label }}</span>
+      <span class="text-[22px] font-bold text-slate-900 dark:text-slate-50 leading-none max-[639px]:text-[15px]">{{ cell.orderCount }}</span>
+      <span class="text-[10px] text-slate-400 max-[639px]:hidden">orders</span>
+      <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-[2px] max-[639px]:text-[9px]">{{ cell.revenue | currency:'EUR':'symbol':'1.0-0':'fr-FR' }}</span>
     </div>
   }
 </div>

@@ -1,9 +1,0 @@
-.export-btn {
-  &:hover:not(:disabled) {
-    background: #e2e8f0;
-    color: #0f172a;
-  }
-  &:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
-}
