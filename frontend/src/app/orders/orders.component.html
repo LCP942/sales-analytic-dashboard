@@ -15,9 +15,9 @@
               [disabled]="exporting() || totalElements() === 0"
               [title]="totalElements() === 0 ? 'No orders to export' : 'Export to CSV'">
         @if (exporting()) {
-          <mat-icon class="spin text-[18px] w-[18px] h-[18px]">sync</mat-icon>
+          <mat-icon class="spin !text-[18px] !w-[18px] !h-[18px]">sync</mat-icon>
         } @else {
-          <mat-icon class="text-[18px] w-[18px] h-[18px]">download</mat-icon>
+          <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">download</mat-icon>
         }
         {{ exporting() ? 'Exporting…' : 'Export' }}
       </button>
