@@ -1,40 +1,48 @@
-<nav class="sidebar">
-  <div class="sidebar__brand">
-    <mat-icon class="sidebar__brand-icon">bar_chart</mat-icon>
-    <span class="sidebar__brand-name">SalesDash</span>
+<nav class="sidebar w-[220px] h-screen sticky top-0 bg-slate-800 text-slate-300 flex flex-col flex-shrink-0 overflow-y-auto">
+
+  <div class="flex items-center gap-2.5 px-5 py-6 pb-5 text-slate-50 text-lg font-bold tracking-wide border-b border-white/[0.08] mb-3">
+    <mat-icon class="sidebar-brand-icon">bar_chart</mat-icon>
+    <span>SalesDash</span>
   </div>
 
-  <ul class="sidebar__nav">
+  <ul class="m-0 px-2.5 flex flex-col gap-1">
     <li>
-      <a class="sidebar__link"
+      <a class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-400 no-underline text-[0.95rem] font-medium transition-[background,color] duration-150 hover:bg-white/[0.07] hover:text-slate-100"
          routerLink="/dashboard"
-         routerLinkActive="sidebar__link--active"
-         matRipple
-         matTooltip="Dashboard"
-         matTooltipPosition="right">
+         routerLinkActive="nav-link--active"
+         matRipple matTooltip="Dashboard" matTooltipPosition="right">
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </a>
     </li>
     <li>
-      <a class="sidebar__link"
+      <a class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-400 no-underline text-[0.95rem] font-medium transition-[background,color] duration-150 hover:bg-white/[0.07] hover:text-slate-100"
          routerLink="/orders"
-         routerLinkActive="sidebar__link--active"
-         matRipple
-         matTooltip="Orders"
-         matTooltipPosition="right">
+         routerLinkActive="nav-link--active"
+         matRipple matTooltip="Orders" matTooltipPosition="right">
         <mat-icon>receipt_long</mat-icon>
         <span>Orders</span>
       </a>
     </li>
+    <li>
+      <a class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-400 no-underline text-[0.95rem] font-medium transition-[background,color] duration-150 hover:bg-white/[0.07] hover:text-slate-100"
+         routerLink="/customers"
+         routerLinkActive="nav-link--active"
+         matRipple matTooltip="Customers" matTooltipPosition="right">
+        <mat-icon>people</mat-icon>
+        <span>Customers</span>
+      </a>
+    </li>
   </ul>
 
-  <div class="sidebar__footer">
-    <button class="sidebar__theme-toggle" (click)="theme.toggle()" matRipple
+  <div class="mt-auto px-2.5 py-4 border-t border-white/[0.08]">
+    <button class="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-lg border-none bg-transparent text-slate-400 text-[0.95rem] font-medium cursor-pointer transition-[background,color] duration-150 hover:bg-white/[0.07] hover:text-slate-100"
+            (click)="theme.toggle()" matRipple
             [matTooltip]="theme.isDark() ? 'Light mode' : 'Dark mode'"
             matTooltipPosition="right">
       <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
       <span>{{ theme.isDark() ? 'Light mode' : 'Dark mode' }}</span>
     </button>
   </div>
+
 </nav>

@@ -10,6 +10,7 @@ import { OrderStatus } from '../../../core/models/order.models';
 export interface OrderFilters {
   statuses: OrderStatus[];
   search: string;
+  customer: string;
   product: string;
   minAmount: number | null;
   maxAmount: number | null;
@@ -65,9 +66,10 @@ export class OrderFiltersComponent {
   fromDate = signal<Date>(parseIso(yearAgo()));
   toDate   = signal<Date>(parseIso(today()));
 
-  // Set by dashboard drill-down, displayed as removable chips.
+  // Set by external navigation (dashboard drill-down or customer detail), displayed as removable chips.
   selectedCategories = signal<string[]>([]);
   selectedProduct    = signal<string>('');
+  selectedCustomer   = signal<string>('');
 
   // Signals mirroring FormControl values so computed() can track them.
   private readonly searchValue  = toSignal(this.searchControl.valueChanges,    { initialValue: '' });
@@ -86,7 +88,8 @@ export class OrderFiltersComponent {
     && toIso(this.fromDate()) === this.defaultFrom
     && toIso(this.toDate())   === this.defaultTo
     && this.selectedCategories().length === 0
-    && this.selectedProduct() === ''
+    && this.selectedProduct()  === ''
+    && this.selectedCustomer() === ''
   );
 
   constructor() {
@@ -115,13 +118,20 @@ export class OrderFiltersComponent {
     this.toDate.set(parseIso(this.defaultTo));
     this.selectedCategories.set([]);
     this.selectedProduct.set('');
+    this.selectedCustomer.set('');
     this.emit();
   }
 
-  /** Pre-fills category and product from a dashboard drill-down navigation. */
-  applyExternalFilters(category: string, product: string): void {
+  /** Pre-fills category, product, and/or customer from external navigation (dashboard drill-down, customer detail). */
+  applyExternalFilters(category: string, product: string, customer = ''): void {
     if (category) this.selectedCategories.set([category]);
     if (product)  this.selectedProduct.set(product);
+    if (customer) this.selectedCustomer.set(customer);
+    this.emit();
+  }
+
+  clearCustomer(): void {
+    this.selectedCustomer.set('');
     this.emit();
   }
 
@@ -170,7 +180,8 @@ export class OrderFiltersComponent {
   private emit(): void {
     this.filtersChange.emit({
       statuses:   this.selectedStatuses(),
-      search:     this.searchControl.value    ?? '',
+      search:     this.searchControl.value ?? '',
+      customer:   this.selectedCustomer(),
       product:    this.selectedProduct(),
       minAmount:  this.minAmountControl.value,
       maxAmount:  this.maxAmountControl.value,

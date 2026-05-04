@@ -1,0 +1,23 @@
+// Responsive item-row grid: hide total column on narrow screens, stack on very small
+.item-row {
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr 64px 96px 40px !important;
+    .item-total { display: none; }
+  }
+
+  @media (max-width: 479px) {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: auto auto;
+
+    mat-form-field { grid-column: 1 / -1; }
+    button[mat-icon-button] { grid-column: 2; grid-row: 2; justify-self: end; }
+  }
+}
+
+// Remove button red hover (Tailwind hover:text-red-500 is scoped to :host)
+.item-remove:hover mat-icon { color: #ef4444; }
+
+// Cancel/Submit full-width on very small screens
+@media (max-width: 399px) {
+  .form-actions button { width: 100%; }
+}

@@ -1,17 +1,17 @@
-<div class="dashboard">
-  <header class="dashboard__header">
-    <div class="dashboard__title">
-      <h1>Sales Dashboard</h1>
-      <span class="dashboard__subtitle">E-commerce analytics</span>
-    </div>
+<div class="mx-auto max-w-[1280px] p-6 flex flex-col gap-6 max-md:p-4">
+
+  <header>
+    <h1 class="m-0 mb-1 text-[28px] font-bold">Sales Dashboard</h1>
+    <span class="text-sm text-slate-500 dark:text-slate-400">E-commerce analytics</span>
   </header>
 
   <app-filter-strip />
 
-  <main class="dashboard__content">
+  <main class="flex flex-col gap-6">
+
     <!-- KPI Cards -->
     @if (isInitialLoad()) {
-      <div class="kpi-skeleton-row">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
         @for (_ of [1,2,3]; track $index) {
           <app-skeleton-loader height="120px" />
         }
@@ -20,55 +20,56 @@
       <app-kpi-cards [kpis]="kpis()!" />
     }
 
-    <!-- Charts row 1: Revenue line chart (full width) -->
-    <div class="chart-card">
+    <!-- Revenue line chart -->
+    <div class="card p-6 max-md:p-4">
       @if (isInitialLoad()) {
         <app-skeleton-loader height="300px" />
       } @else {
-        <h2 class="chart-card__title">Revenue over time</h2>
+        <h2 class="flex items-baseline flex-wrap gap-2 m-0 mb-4 text-xl font-semibold text-slate-700 dark:text-slate-300">
+          Revenue over time
+        </h2>
         <app-revenue-chart [data]="revenueData()" />
       }
     </div>
 
-    <!-- Orders by weekday heatmap -->
-    <div class="chart-card">
+    <!-- Weekday heatmap -->
+    <div class="card p-6 max-md:p-4">
       @if (isInitialLoad()) {
         <app-skeleton-loader height="120px" />
       } @else {
-        <h2 class="chart-card__title">Orders by day of week</h2>
+        <h2 class="flex items-baseline flex-wrap gap-2 m-0 mb-4 text-xl font-semibold text-slate-700 dark:text-slate-300">
+          Orders by day of week
+        </h2>
         <app-weekday-heatmap [data]="weekdayStats()" />
       }
     </div>
 
-    <!-- Charts row 2: Top products + Category breakdown -->
-    <div class="chart-row">
-      <div class="chart-card">
+    <!-- Top products + Category breakdown -->
+    <div class="grid grid-cols-2 gap-6 max-md:grid-cols-1">
+      <div class="card p-6 max-md:p-4">
         @if (isInitialLoad()) {
           <app-skeleton-loader height="280px" />
         } @else {
-          <h2 class="chart-card__title">
+          <h2 class="flex items-baseline flex-wrap gap-2 m-0 mb-4 text-xl font-semibold text-slate-700 dark:text-slate-300">
             Top products
-            <span class="chart-card__hint">Click a bar to filter orders</span>
+            <span class="text-[11px] font-normal text-slate-400 whitespace-nowrap">Click a bar to filter orders</span>
           </h2>
-          <app-top-products-chart
-            [data]="topProducts()"
-            (productClick)="drillDownProduct($event)" />
+          <app-top-products-chart [data]="topProducts()" (productClick)="drillDownProduct($event)" />
         }
       </div>
 
-      <div class="chart-card">
+      <div class="card p-6 max-md:p-4">
         @if (isInitialLoad()) {
           <app-skeleton-loader height="280px" />
         } @else {
-          <h2 class="chart-card__title">
+          <h2 class="flex items-baseline flex-wrap gap-2 m-0 mb-4 text-xl font-semibold text-slate-700 dark:text-slate-300">
             Sales by category
-            <span class="chart-card__hint">Click a slice to filter orders</span>
+            <span class="text-[11px] font-normal text-slate-400 whitespace-nowrap">Click a slice to filter orders</span>
           </h2>
-          <app-category-chart
-            [data]="categories()"
-            (categoryClick)="drillDownCategory($event)" />
+          <app-category-chart [data]="categories()" (categoryClick)="drillDownCategory($event)" />
         }
       </div>
     </div>
+
   </main>
 </div>

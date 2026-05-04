@@ -46,7 +46,9 @@ describe('OrderFiltersComponent', () => {
     component.onChipChange({ value: ['DELIVERED', 'SHIPPED'] } as any);
     component.reset();
     expect(component.chipValues()).toEqual(['ALL']);
-    expect(emitted.at(-1)).toEqual(jasmine.objectContaining({ statuses: [], search: '', categories: [], product: '' }));
+    expect(emitted.at(-1)).toEqual(jasmine.objectContaining({
+      statuses: [], search: '', categories: [], product: '', customer: '',
+    }));
   });
 
   it('reset() clears the search input', () => {
@@ -60,6 +62,8 @@ describe('OrderFiltersComponent', () => {
     component.onChipChange({ value: ['PENDING'] } as any);
     expect(emitted.at(-1)?.search).toBe('Alice');
   });
+
+  // ── Category / product chips ──────────────────────────────────────────────
 
   it('applyExternalFilters pre-fills category and product and emits', () => {
     component.applyExternalFilters('Electronics', 'Laptop Pro');
@@ -86,5 +90,61 @@ describe('OrderFiltersComponent', () => {
     component.applyExternalFilters('Electronics', 'Laptop Pro');
     component.reset();
     expect(emitted.at(-1)).toEqual(jasmine.objectContaining({ categories: [], product: '' }));
+  });
+
+  // ── Customer chip ─────────────────────────────────────────────────────────
+
+  it('starts with no customer chip', () => {
+    expect(component.selectedCustomer()).toBe('');
+    expect(emitted.length).toBe(0);
+  });
+
+  it('applyExternalFilters pre-fills customer and emits', () => {
+    component.applyExternalFilters('', '', 'Alice Martin');
+    expect(component.selectedCustomer()).toBe('Alice Martin');
+    expect(emitted.at(-1)).toEqual(jasmine.objectContaining({ customer: 'Alice Martin' }));
+  });
+
+  it('applyExternalFilters with all three arguments fills all chips and emits', () => {
+    component.applyExternalFilters('Electronics', 'Laptop Pro', 'Alice Martin');
+    expect(component.selectedCategories()).toEqual(['Electronics']);
+    expect(component.selectedProduct()).toBe('Laptop Pro');
+    expect(component.selectedCustomer()).toBe('Alice Martin');
+    expect(emitted.at(-1)).toEqual(jasmine.objectContaining({
+      categories: ['Electronics'], product: 'Laptop Pro', customer: 'Alice Martin',
+    }));
+  });
+
+  it('clearCustomer removes the customer chip and emits customer: ""', () => {
+    component.applyExternalFilters('', '', 'Alice Martin');
+    component.clearCustomer();
+    expect(component.selectedCustomer()).toBe('');
+    expect(emitted.at(-1)).toEqual(jasmine.objectContaining({ customer: '' }));
+  });
+
+  it('reset() clears the customer chip', () => {
+    component.applyExternalFilters('', '', 'Bob Dupont');
+    component.reset();
+    expect(component.selectedCustomer()).toBe('');
+    expect(emitted.at(-1)).toEqual(jasmine.objectContaining({ customer: '' }));
+  });
+
+  it('isDefault() is false when customer chip is set', () => {
+    component.applyExternalFilters('', '', 'Alice Martin');
+    expect(component.isDefault()).toBeFalse();
+  });
+
+  it('isDefault() is true after reset() clears the customer chip', () => {
+    component.applyExternalFilters('', '', 'Alice Martin');
+    component.reset();
+    expect(component.isDefault()).toBeTrue();
+  });
+
+  it('emits customer field independently from search', () => {
+    component.searchControl.setValue('other', { emitEvent: false });
+    component.applyExternalFilters('', '', 'Alice Martin');
+    const last = emitted.at(-1)!;
+    expect(last.customer).toBe('Alice Martin');
+    expect(last.search).toBe('other');
   });
 });

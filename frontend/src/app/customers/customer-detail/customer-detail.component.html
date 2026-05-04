@@ -1,0 +1,105 @@
+<div class="mx-auto max-w-[1280px] p-6 flex flex-col gap-5 max-md:p-4">
+
+  <div class="flex items-center">
+    <button class="text-slate-500 pl-0" mat-button (click)="back()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Customers
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-16">
+      <mat-spinner diameter="40" />
+    </div>
+  }
+
+  @if (error()) {
+    <div class="flex flex-col items-center gap-3 py-16 text-slate-400">
+      <mat-icon class="!text-[48px] !w-12 !h-12 opacity-40">error_outline</mat-icon>
+      <p class="m-0">Customer not found.</p>
+    </div>
+  }
+
+  @if (customer(); as c) {
+
+    <!-- Header -->
+    <div class="flex items-center gap-5 flex-wrap">
+      <div class="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center text-[1.75rem] font-bold flex-shrink-0">
+        {{ c.name.charAt(0).toUpperCase() }}
+      </div>
+      <div>
+        <h1 class="text-[28px] font-bold text-slate-900 dark:text-slate-50 m-0 mb-1">{{ c.name }}</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 m-0">{{ c.city }}</p>
+      </div>
+      <div class="ml-auto flex gap-2 flex-wrap max-[599px]:ml-0 max-[599px]:w-full">
+        <button mat-stroked-button (click)="viewOrders()">
+          <mat-icon>receipt_long</mat-icon>
+          View orders
+        </button>
+        <button mat-flat-button color="primary" (click)="createOrder()">
+          <mat-icon>add</mat-icon>
+          New order
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-3 gap-4 max-[599px]:grid-cols-1">
+      <div class="card p-5 px-6 flex flex-col gap-1.5">
+        <span class="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-slate-400">Total orders</span>
+        <span class="text-[1.75rem] font-bold text-slate-900 dark:text-slate-50">{{ c.orderCount }}</span>
+      </div>
+      <div class="card p-5 px-6 flex flex-col gap-1.5">
+        <span class="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-slate-400">Lifetime value</span>
+        <span class="text-[1.75rem] font-bold text-slate-900 dark:text-slate-50">
+          {{ c.lifetimeValue | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+        </span>
+      </div>
+      <div class="card p-5 px-6 flex flex-col gap-1.5">
+        <span class="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-slate-400">Avg. order value</span>
+        <span class="text-[1.75rem] font-bold text-slate-900 dark:text-slate-50">
+          @if (c.orderCount > 0) {
+            {{ (c.lifetimeValue / c.orderCount) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+          } @else { — }
+        </span>
+      </div>
+    </div>
+
+    <!-- Contact info -->
+    <div class="card p-5 px-6">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.05em] text-slate-500 dark:text-slate-400 m-0 mb-4">
+        Contact info
+      </h2>
+      <div class="flex flex-col gap-4">
+
+        <div class="flex items-center gap-4">
+          <mat-icon class="text-slate-400 flex-shrink-0">person</mat-icon>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-[0.6875rem] font-medium uppercase tracking-[0.05em] text-slate-400">Full name</span>
+            <span class="text-[0.9375rem] font-medium text-slate-900 dark:text-slate-50">{{ c.name }}</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <mat-icon class="text-slate-400 flex-shrink-0">email</mat-icon>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-[0.6875rem] font-medium uppercase tracking-[0.05em] text-slate-400">Email</span>
+            <a class="text-[0.9375rem] font-medium text-blue-500 no-underline hover:underline"
+               [href]="'mailto:' + c.email">{{ c.email }}</a>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <mat-icon class="text-slate-400 flex-shrink-0">location_on</mat-icon>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-[0.6875rem] font-medium uppercase tracking-[0.05em] text-slate-400">City</span>
+            <span class="text-[0.9375rem] font-medium text-slate-900 dark:text-slate-50">{{ c.city }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  }
+
+</div>

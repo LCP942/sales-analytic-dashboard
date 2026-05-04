@@ -1,0 +1,159 @@
+<div class="mx-auto max-w-[860px] p-6 flex flex-col gap-5 max-md:p-4">
+
+  <div class="flex items-center">
+    <button class="text-slate-500 pl-0" mat-button (click)="back()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Orders
+    </button>
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <h1 class="text-[28px] font-bold text-slate-900 dark:text-slate-50 m-0">New order</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 m-0">Fill in the details and add at least one product line.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center gap-3 py-12 text-slate-400">
+      <mat-icon class="spin">sync</mat-icon>
+      <span>Loading catalogue…</span>
+    </div>
+  } @else {
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <!-- ── Order info ── -->
+      <div class="card p-6 px-7 flex flex-col gap-4">
+        <h2 class="text-sm font-semibold uppercase tracking-[0.05em] text-slate-500 dark:text-slate-400 m-0">
+          Order details
+        </h2>
+
+        <div class="grid grid-cols-2 gap-x-4 gap-y-5 max-[599px]:grid-cols-1">
+
+          <!-- Customer — combobox with backend search -->
+          <div class="flex flex-col gap-[5px]">
+            <label class="text-xs font-medium text-slate-500">Customer</label>
+            <app-combobox
+              formControlName="customerId"
+              placeholder="Search customer…"
+              [searchFn]="searchCustomers"
+              [preset]="customerPreset()" />
+            @if (form.controls.customerId.touched && form.controls.customerId.hasError('required')) {
+              <span class="text-xs text-red-500">Customer is required</span>
+            }
+          </div>
+
+          <!-- Order date -->
+          <div class="flex flex-col gap-[5px]">
+            <label class="text-xs font-medium text-slate-500" for="oc-date">Order date</label>
+            <input class="app-input cursor-pointer" id="oc-date"
+                   [matDatepicker]="dp" formControlName="orderDate"
+                   (click)="dp.open()" readonly />
+            <mat-datepicker #dp />
+          </div>
+
+          <!-- Status -->
+          <div class="flex flex-col gap-[5px]">
+            <label class="text-xs font-medium text-slate-500">Status</label>
+            <app-select formControlName="status" [options]="statusOptions" />
+          </div>
+
+          <!-- Payment method -->
+          <div class="flex flex-col gap-[5px]">
+            <label class="text-xs font-medium text-slate-500">Payment method</label>
+            <app-select formControlName="paymentMethod" [options]="paymentOptions" />
+          </div>
+
+          <!-- Shipping -->
+          <div class="flex flex-col gap-[5px]">
+            <label class="text-xs font-medium text-slate-500" for="oc-shipping">Shipping (€)</label>
+            <div class="relative flex items-center">
+              <mat-icon class="absolute left-2.5 !text-[18px] !w-[18px] !h-[18px] text-slate-400 pointer-events-none">local_shipping</mat-icon>
+              <input class="app-input !pl-9" id="oc-shipping"
+                     type="number" min="0" step="0.01" formControlName="shippingAmount" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Line items ── -->
+      <div class="card p-6 px-7 flex flex-col gap-4 mt-5">
+
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <h2 class="text-sm font-semibold uppercase tracking-[0.05em] text-slate-500 dark:text-slate-400 m-0">
+            Products
+          </h2>
+          <button mat-stroked-button type="button" (click)="addItem()">
+            <mat-icon>add</mat-icon>
+            Add line
+          </button>
+        </div>
+
+        @if (itemsArray.length === 0) {
+          <p class="text-sm text-slate-400 m-0 py-3">No products yet — click "Add line" to start.</p>
+        }
+
+        <div formArrayName="items" class="flex flex-col gap-2">
+          @for (item of itemsArray.controls; track $index; let i = $index) {
+            <div [formGroupName]="i" class="item-row grid gap-2 items-end"
+                 style="grid-template-columns: 1fr 80px 120px 100px 40px">
+
+              <div class="flex flex-col gap-[5px]">
+                <label class="text-xs font-medium text-slate-500">Product</label>
+                <app-combobox
+                  formControlName="productId"
+                  placeholder="Search product…"
+                  [searchFn]="searchProducts"
+                  (selectionChange)="onProductChange(i, $event)" />
+              </div>
+
+              <div class="flex flex-col gap-[5px]">
+                <label class="text-xs font-medium text-slate-500">Qty</label>
+                <input class="app-input" type="number" min="1" formControlName="quantity" />
+              </div>
+
+              <div class="flex flex-col gap-[5px]">
+                <label class="text-xs font-medium text-slate-500">Unit price (€)</label>
+                <input class="app-input" type="number" min="0.01" step="0.01" formControlName="unitPrice" />
+              </div>
+
+              <div class="pb-[9px] font-semibold text-[0.9375rem] text-slate-900 dark:text-slate-50 text-right whitespace-nowrap">
+                {{ itemTotal(item) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+              </div>
+
+              <button mat-icon-button type="button" class="item-remove !text-slate-400"
+                      (click)="removeItem(i)" title="Remove line">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+
+            </div>
+          }
+        </div>
+
+        @if (itemsArray.length > 0) {
+          <mat-divider />
+          <div class="flex justify-end items-center gap-6 pt-3 text-[0.9375rem] text-slate-500 dark:text-slate-400">
+            <span>Order total</span>
+            <span class="text-xl font-bold text-blue-500 min-w-[120px] text-right">
+              {{ orderTotal | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+            </span>
+          </div>
+        }
+
+        <div class="flex justify-end gap-2 flex-wrap mt-2 max-[399px]:flex-col">
+          <button mat-stroked-button type="button" (click)="back()" [disabled]="saving()">
+            Cancel
+          </button>
+          <button mat-flat-button color="primary" type="submit"
+                  [disabled]="form.invalid || itemsArray.length === 0 || saving()">
+            <mat-icon [class.spin]="saving()">{{ saving() ? 'sync' : 'check' }}</mat-icon>
+            {{ saving() ? 'Saving…' : 'Create order' }}
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+  }
+
+</div>

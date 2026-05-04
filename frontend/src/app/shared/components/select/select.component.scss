@@ -1,0 +1,18 @@
+.dropdown-item {
+  transition: background 80ms;
+
+  &:hover     { background: #f8fafc; }
+  &.is-selected          { background: #eff6ff; color: #1d4ed8; }
+  &.is-selected:hover    { background: #dbeafe; }
+}
+
+:host-context(html.dark) .dropdown-item {
+  &:hover            { background: #334155; }
+  &.is-selected      { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+  &.is-selected:hover { background: rgba(59, 130, 246, 0.22); }
+}
+
+// Red border when the form control is touched + invalid
+:host.ng-touched.ng-invalid .trigger {
+  border-color: #ef4444;
+}

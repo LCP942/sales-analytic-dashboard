@@ -1,0 +1,44 @@
+<button type="button"
+        class="trigger w-full flex items-center gap-2 py-2 px-3 border rounded-md bg-slate-50 dark:bg-slate-900 text-sm text-left cursor-pointer transition-[border-color,box-shadow] duration-[120ms] focus:outline-none font-[inherit]"
+        [class.border-blue-500]="isOpen()"
+        [class.border-slate-200]="!isOpen()"
+        [class.opacity-50]="disabled()"
+        [class.cursor-not-allowed]="disabled()"
+        [attr.disabled]="disabled() || null"
+        (click)="toggle()"
+        (keydown)="onKeydown($event)"
+        aria-haspopup="listbox"
+        [attr.aria-expanded]="isOpen()">
+  <span class="flex-1 truncate text-slate-900 dark:text-slate-100"
+        [class.!text-slate-400]="!value()">
+    {{ displayLabel || placeholder }}
+  </span>
+  <mat-icon class="!text-[18px] !w-[18px] !h-[18px] text-slate-400 flex-shrink-0 transition-transform duration-150"
+            [class.rotate-180]="isOpen()">expand_more</mat-icon>
+</button>
+
+@if (isOpen()) {
+  <ul class="absolute z-50 top-[calc(100%+4px)] left-0 right-0 m-0 p-1 list-none
+             bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
+             rounded-lg shadow-lg overflow-y-auto max-h-60"
+      role="listbox">
+    @for (opt of options; track opt.value) {
+      <li class="dropdown-item flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-sm select-none"
+          [class.is-selected]="opt.value === value()"
+          role="option"
+          [attr.aria-selected]="opt.value === value()"
+          (click)="select(opt)">
+        <span class="flex-1 truncate">{{ opt.label }}</span>
+        @if (opt.sublabel) {
+          <span class="text-xs text-slate-400 flex-shrink-0">{{ opt.sublabel }}</span>
+        }
+        @if (opt.value === value()) {
+          <mat-icon class="!text-[14px] !w-3.5 !h-3.5 text-blue-500 flex-shrink-0">check</mat-icon>
+        }
+      </li>
+    }
+    @if (!options.length) {
+      <li class="px-3 py-3 text-sm text-center text-slate-400">No options</li>
+    }
+  </ul>
+}

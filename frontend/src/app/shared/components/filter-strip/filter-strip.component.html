@@ -1,37 +1,46 @@
-<div class="filter-strip">
-  <span class="filter-strip__label">Period</span>
+<div class="flex items-center flex-wrap gap-3 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] mb-6">
 
-  <div class="filter-strip__presets">
+  <span class="text-xs font-medium text-slate-500 dark:text-slate-400 mr-1">Period</span>
+
+  <div class="flex gap-1">
     @for (p of presets; track p.value) {
-      <button class="filter-strip__btn"
-              [class.active]="filter.activePreset() === p.value"
+      <button class="py-1.5 px-3.5 rounded-md border text-[13px] font-[inherit] cursor-pointer transition-[background,color,border-color] duration-[120ms]"
+              [class.bg-blue-500]="filter.activePreset() === p.value"
+              [class.border-blue-500]="filter.activePreset() === p.value"
+              [class.text-white]="filter.activePreset() === p.value"
+              [class.font-medium]="filter.activePreset() === p.value"
+              [class.bg-slate-50]="filter.activePreset() !== p.value"
+              [class.dark:bg-slate-900]="filter.activePreset() !== p.value"
+              [class.border-slate-200]="filter.activePreset() !== p.value"
+              [class.dark:border-slate-700]="filter.activePreset() !== p.value"
+              [class.text-slate-500]="filter.activePreset() !== p.value"
+              [class.hover:bg-slate-200]="filter.activePreset() !== p.value"
               (click)="onPreset(p.value)">
         {{ p.label }}
       </button>
     }
   </div>
 
-  <span class="filter-strip__divider" aria-hidden="true"></span>
+  <span class="inline-block w-px h-6 bg-slate-200 dark:bg-slate-700 max-sm:w-full max-sm:h-px"></span>
 
-  <div class="filter-strip__dates">
-    <input class="filter-strip__date"
+  <div class="flex gap-1 max-sm:w-full">
+    <input class="app-input !w-[130px] cursor-pointer max-sm:flex-1 max-sm:!w-auto max-sm:min-w-0"
            [matDatepicker]="fromPicker"
            [value]="fromDate()"
            [max]="toDate()"
            (dateChange)="onFromChange($event.value)"
            (click)="fromPicker.open()"
-           readonly
-           placeholder="From" />
+           readonly placeholder="From" />
     <mat-datepicker #fromPicker />
 
-    <input class="filter-strip__date"
+    <input class="app-input !w-[130px] cursor-pointer max-sm:flex-1 max-sm:!w-auto max-sm:min-w-0"
            [matDatepicker]="toPicker"
            [value]="toDate()"
            [min]="fromDate()"
            (dateChange)="onToChange($event.value)"
            (click)="toPicker.open()"
-           readonly
-           placeholder="To" />
+           readonly placeholder="To" />
     <mat-datepicker #toPicker />
   </div>
+
 </div>

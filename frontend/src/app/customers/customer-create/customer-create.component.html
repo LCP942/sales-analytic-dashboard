@@ -1,0 +1,77 @@
+<div class="mx-auto max-w-[640px] p-6 flex flex-col gap-5 max-md:p-4">
+
+  <div class="flex items-center">
+    <button class="text-slate-500 pl-0" mat-button (click)="back()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Customers
+    </button>
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <h1 class="text-[28px] font-bold text-slate-900 dark:text-slate-50 m-0">New customer</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 m-0">Fill in the details below to add a new customer.</p>
+  </div>
+
+  <div class="card p-6 px-7">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4" novalidate>
+
+      <!-- Full name -->
+      <div class="flex flex-col gap-[5px]">
+        <label class="text-xs font-medium text-slate-500" for="cc-name">Full name</label>
+        <div class="relative flex items-center">
+          <mat-icon class="absolute left-2.5 !text-[18px] !w-[18px] !h-[18px] text-slate-400 pointer-events-none">person</mat-icon>
+          <input class="app-input !pl-9" id="cc-name"
+                 formControlName="name" placeholder="e.g. Alice Martin" autocomplete="off" />
+        </div>
+        @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+          <span class="text-xs text-red-500">Name is required</span>
+        }
+        @if (form.controls.name.touched && form.controls.name.hasError('minlength')) {
+          <span class="text-xs text-red-500">Name must be at least 2 characters</span>
+        }
+      </div>
+
+      <!-- Email address -->
+      <div class="flex flex-col gap-[5px]">
+        <label class="text-xs font-medium text-slate-500" for="cc-email">Email address</label>
+        <div class="relative flex items-center">
+          <mat-icon class="absolute left-2.5 !text-[18px] !w-[18px] !h-[18px] text-slate-400 pointer-events-none">email</mat-icon>
+          <input class="app-input !pl-9" id="cc-email"
+                 formControlName="email" type="email" placeholder="e.g. alice@example.com" autocomplete="off" />
+        </div>
+        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+          <span class="text-xs text-red-500">Email is required</span>
+        }
+        @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+          <span class="text-xs text-red-500">Enter a valid email address</span>
+        }
+      </div>
+
+      <!-- City -->
+      <div class="flex flex-col gap-[5px]">
+        <label class="text-xs font-medium text-slate-500" for="cc-city">City</label>
+        <div class="relative flex items-center">
+          <mat-icon class="absolute left-2.5 !text-[18px] !w-[18px] !h-[18px] text-slate-400 pointer-events-none">location_on</mat-icon>
+          <input class="app-input !pl-9" id="cc-city"
+                 formControlName="city" placeholder="e.g. Paris" autocomplete="off" />
+        </div>
+        @if (form.controls.city.touched && form.controls.city.hasError('required')) {
+          <span class="text-xs text-red-500">City is required</span>
+        }
+      </div>
+
+      <div class="flex justify-end gap-2 flex-wrap mt-2 max-[399px]:flex-col">
+        <button mat-stroked-button type="button" (click)="back()" [disabled]="saving()">
+          Cancel
+        </button>
+        <button mat-flat-button color="primary" type="submit"
+                [disabled]="form.invalid || saving()">
+          <mat-icon [class.spin]="saving()">{{ saving() ? 'sync' : 'person_add' }}</mat-icon>
+          {{ saving() ? 'Saving…' : 'Create customer' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

@@ -1,19 +1,6 @@
-.sidebar {
-  width: 220px;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  background: #1e293b;
-  color: #cbd5e1;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  padding: 0;
-  overflow-y: auto;
-}
-
-@media (max-width: 767px) {
-  :host {
+// Mobile: sidebar is fixed, off-screen, slides in when .is-open is on :host
+:host {
+  @media (max-width: 767px) {
     position: fixed;
     top: 56px;
     left: 0;
@@ -21,95 +8,28 @@
     z-index: 100;
     pointer-events: none;
   }
+}
 
-  .sidebar {
+.sidebar {
+  @media (max-width: 767px) {
     position: static;
     height: 100%;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     pointer-events: auto;
   }
-
-  :host.is-open .sidebar {
-    transform: translateX(0);
-  }
 }
 
-.sidebar__brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 24px 20px 20px;
-  color: #f8fafc;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 12px;
+:host.is-open .sidebar {
+  @media (max-width: 767px) { transform: translateX(0); }
 }
 
-.sidebar__brand-icon {
-  color: #3b82f6;
-  font-size: 26px;
-}
+// Brand icon color (overrides Material default)
+.sidebar-brand-icon { color: #3b82f6; font-size: 26px; }
 
-.sidebar__nav {
-  list-style: none;
-  margin: 0;
-  padding: 0 10px;
-}
-
-.sidebar__link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  color: #94a3b8;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: background 0.15s, color 0.15s;
-  margin-bottom: 4px;
-}
-
-.sidebar__link:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #f1f5f9;
-}
-
-.sidebar__link--active {
+// Active nav link (applied via routerLinkActive)
+.nav-link--active {
   background: rgba(59, 130, 246, 0.18);
   color: #60a5fa;
-}
-
-.sidebar__link--active mat-icon {
-  color: #3b82f6;
-}
-
-.sidebar__footer {
-  margin-top: auto;
-  padding: 16px 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.sidebar__theme-toggle {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: #94a3b8;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.sidebar__theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #f1f5f9;
+  mat-icon { color: #3b82f6; }
 }

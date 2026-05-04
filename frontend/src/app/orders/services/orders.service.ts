@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { OrderDetail, OrderStatus, OrderSummary, PageResponse } from '../../core/models/order.models';
+import { OrderCreateRequest, OrderDetail, OrderStatus, OrderSummary, PageResponse } from '../../core/models/order.models';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
@@ -41,6 +41,10 @@ export class OrdersService {
 
   getOrder(id: number): Observable<OrderDetail> {
     return this.http.get<OrderDetail>(`${this.base}/${id}`);
+  }
+
+  createOrder(req: OrderCreateRequest): Observable<OrderDetail> {
+    return this.http.post<OrderDetail>(this.base, req);
   }
 
 }

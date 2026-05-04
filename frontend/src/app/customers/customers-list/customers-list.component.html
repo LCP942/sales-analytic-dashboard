@@ -1,0 +1,106 @@
+<div class="mx-auto max-w-[1280px] p-6 flex flex-col gap-5 max-md:p-4">
+
+  <div class="flex items-start justify-between flex-wrap gap-3">
+    <div>
+      <h1 class="text-[28px] font-bold text-slate-900 dark:text-slate-50 m-0 mb-1">Customers</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 m-0">{{ totalElements() }} customer{{ totalElements() === 1 ? '' : 's' }}</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="createCustomer()">
+      <mat-icon>person_add</mat-icon>
+      New customer
+    </button>
+  </div>
+
+  <div class="relative flex items-center w-[320px] max-[479px]:w-full">
+    <mat-icon class="absolute left-2.5 text-[18px] !w-[18px] !h-[18px] text-slate-400 pointer-events-none">search</mat-icon>
+    <input class="app-input !pl-9 !pr-8"
+           [value]="searchName"
+           (input)="onSearchInput($event)"
+           placeholder="Search by name…"
+           aria-label="Search customers by name" />
+    @if (searchName) {
+      <button class="absolute right-1.5 flex items-center justify-center bg-transparent border-none cursor-pointer text-slate-400 p-0.5 rounded hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700"
+              type="button" (click)="clearSearch()" aria-label="Clear search">
+        <mat-icon class="!text-[16px] !w-4 !h-4">close</mat-icon>
+      </button>
+    }
+  </div>
+
+  <div class="card overflow-hidden">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @if (!hasLoaded() && !loading()) {
+      <div class="flex flex-col items-center gap-3 py-16 px-6 text-slate-400 dark:text-slate-500">
+        <mat-icon class="!text-[48px] !w-12 !h-12 opacity-40">people</mat-icon>
+        <p class="m-0 text-[0.9375rem]">Loading customers…</p>
+      </div>
+    }
+
+    @if (hasLoaded() && customers().length === 0) {
+      <div class="flex flex-col items-center gap-3 py-16 px-6 text-slate-400 dark:text-slate-500">
+        <mat-icon class="!text-[48px] !w-12 !h-12 opacity-40">search_off</mat-icon>
+        <p class="m-0 text-[0.9375rem]">No customers found</p>
+      </div>
+    }
+
+    @if (customers().length > 0) {
+      <table mat-table [dataSource]="customers()" class="w-full">
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let c">
+            <span class="font-semibold text-slate-900 dark:text-slate-50">{{ c.name }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let c" class="text-slate-500 dark:text-slate-400 text-sm">{{ c.email }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="city">
+          <th mat-header-cell *matHeaderCellDef>City</th>
+          <td mat-cell *matCellDef="let c">{{ c.city }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="orderCount">
+          <th mat-header-cell *matHeaderCellDef class="!text-right">Orders</th>
+          <td mat-cell *matCellDef="let c" class="!text-right">{{ c.orderCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="lifetimeValue">
+          <th mat-header-cell *matHeaderCellDef class="!text-right">Lifetime value</th>
+          <td mat-cell *matCellDef="let c" class="!text-right font-semibold">
+            {{ c.lifetimeValue | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let c" class="!text-right !w-12">
+            <button mat-icon-button (click)="openCustomer(c.id)" title="View details">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"
+            class="cursor-pointer transition-colors duration-[120ms] hover:bg-slate-50 dark:hover:bg-slate-700/50"
+            matRipple
+            (click)="openCustomer(row.id)"></tr>
+      </table>
+
+      <mat-paginator
+        [length]="totalElements()"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        [pageIndex]="pageIndex()"
+        (page)="onPage($event)"
+        showFirstLastButtons />
+    }
+  </div>
+
+</div>

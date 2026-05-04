@@ -1,5 +1,6 @@
 package com.lp.salesdashboard.controller;
 
+import com.lp.salesdashboard.dto.OrderCreateRequest;
 import com.lp.salesdashboard.dto.OrderDetailDto;
 import com.lp.salesdashboard.dto.OrderSummaryDto;
 import com.lp.salesdashboard.entity.OrderStatus;
@@ -43,6 +44,12 @@ public class OrderController {
     @GetMapping("/{id}")
     public OrderDetailDto getOrder(@PathVariable Long id) {
         return service.getOrder(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public OrderDetailDto createOrder(@RequestBody OrderCreateRequest req) {
+        return service.createOrder(req);
     }
 
     private List<OrderStatus> parseStatuses(String statuses) {

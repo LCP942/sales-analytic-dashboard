@@ -1,56 +1,54 @@
-<div class="order-filters">
+<div class="flex flex-col gap-2.5 mb-4">
 
   <!-- Row 1: Period + Amount + Customer search -->
-  <div class="order-filters__row order-filters__row--main">
+  <div class="flex items-center flex-wrap gap-3 max-md:flex-col max-md:items-stretch max-md:gap-2">
 
-    <div class="order-filters__group">
-      <span class="order-filters__label">Period</span>
-      <div class="order-filters__dates">
-        <input class="order-filters__date"
+    <div class="flex items-center gap-1.5 flex-shrink-0 max-md:flex-wrap">
+      <span class="text-xs font-medium text-slate-500 whitespace-nowrap">Period</span>
+      <div class="flex items-center gap-1">
+        <input class="app-input !w-[112px] cursor-pointer"
                [matDatepicker]="fromPicker"
                [value]="fromDate()"
                [max]="toDate()"
                (dateChange)="onFromChange($event.value)"
                (click)="fromPicker.open()"
-               readonly
-               placeholder="From" />
+               readonly placeholder="From" />
         <mat-datepicker #fromPicker />
-        <span class="order-filters__sep">→</span>
-        <input class="order-filters__date"
+        <span class="text-xs text-slate-400 px-0.5">→</span>
+        <input class="app-input !w-[112px] cursor-pointer"
                [matDatepicker]="toPicker"
                [value]="toDate()"
                [min]="fromDate()"
                (dateChange)="onToChange($event.value)"
                (click)="toPicker.open()"
-               readonly
-               placeholder="To" />
+               readonly placeholder="To" />
         <mat-datepicker #toPicker />
       </div>
     </div>
 
-    <div class="order-filters__group">
-      <span class="order-filters__label">Amount (€)</span>
-      <div class="order-filters__amounts">
-        <input class="order-filters__amount"
+    <div class="flex items-center gap-1.5 flex-shrink-0 max-md:flex-wrap">
+      <span class="text-xs font-medium text-slate-500 whitespace-nowrap">Amount (€)</span>
+      <div class="flex items-center gap-1">
+        <input class="app-input !w-20 amount-input"
                type="number" min="0"
                [formControl]="minAmountControl"
                placeholder="Min" />
-        <span class="order-filters__sep">—</span>
-        <input class="order-filters__amount"
+        <span class="text-xs text-slate-400 px-0.5">—</span>
+        <input class="app-input !w-20 amount-input"
                type="number" min="0"
                [formControl]="maxAmountControl"
                placeholder="Max" />
       </div>
     </div>
 
-    <input class="order-filters__search"
+    <input class="app-input !w-[200px] ml-auto max-md:ml-0 max-md:!w-full"
            [formControl]="searchControl"
            aria-label="Search by customer name"
            placeholder="Search customer…" />
   </div>
 
   <!-- Row 2: Status chips + Reset button -->
-  <div class="order-filters__row">
+  <div class="flex items-center flex-wrap gap-2">
     <mat-chip-listbox
       multiple
       aria-label="Filter by status"
@@ -62,30 +60,38 @@
       }
     </mat-chip-listbox>
 
-    <button class="order-filters__reset-btn" type="button"
+    <button class="ml-auto py-1 px-3 border border-slate-200 dark:border-slate-700 rounded-md bg-transparent text-xs font-medium text-slate-500 dark:text-slate-400 cursor-pointer whitespace-nowrap transition-[background,color] duration-[120ms] disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:bg-slate-200 dark:hover:enabled:bg-slate-700 hover:enabled:text-slate-900 dark:hover:enabled:text-slate-100"
+            type="button"
             [disabled]="isDefault()"
             (click)="reset()">
       Clear filters
     </button>
   </div>
 
-  <!-- Row 3: Drill-down chips (category / product) -->
-  @if (selectedCategories().length > 0 || selectedProduct()) {
-    <div class="order-filters__row">
-      <div class="order-filters__drilldown-chips">
-        @for (cat of selectedCategories(); track cat) {
-          <span class="order-filters__drilldown-chip">
-            {{ cat }}
-            <button type="button" (click)="removeCategory(cat)" aria-label="Remove {{ cat }}">×</button>
-          </span>
-        }
-        @if (selectedProduct()) {
-          <span class="order-filters__drilldown-chip">
-            {{ selectedProduct() }}
-            <button type="button" (click)="clearProduct()" aria-label="Remove product filter">×</button>
-          </span>
-        }
-      </div>
+  <!-- Row 3: Drill-down chips -->
+  @if (selectedCategories().length > 0 || selectedProduct() || selectedCustomer()) {
+    <div class="flex items-center flex-wrap gap-1.5">
+      @for (cat of selectedCategories(); track cat) {
+        <span class="inline-flex items-center gap-1 py-[3px] pl-2.5 pr-2 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium">
+          {{ cat }}
+          <button type="button" class="inline-flex items-center justify-center w-4 h-4 border-none bg-none cursor-pointer text-blue-500 text-sm leading-none p-0 rounded-full hover:bg-blue-200"
+                  (click)="removeCategory(cat)" [attr.aria-label]="'Remove ' + cat">×</button>
+        </span>
+      }
+      @if (selectedProduct()) {
+        <span class="inline-flex items-center gap-1 py-[3px] pl-2.5 pr-2 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium">
+          {{ selectedProduct() }}
+          <button type="button" class="inline-flex items-center justify-center w-4 h-4 border-none bg-none cursor-pointer text-blue-500 text-sm leading-none p-0 rounded-full hover:bg-blue-200"
+                  (click)="clearProduct()" aria-label="Remove product filter">×</button>
+        </span>
+      }
+      @if (selectedCustomer()) {
+        <span class="inline-flex items-center gap-1 py-[3px] pl-2.5 pr-2 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium">
+          {{ selectedCustomer() }}
+          <button type="button" class="inline-flex items-center justify-center w-4 h-4 border-none bg-none cursor-pointer text-blue-500 text-sm leading-none p-0 rounded-full hover:bg-blue-200"
+                  (click)="clearCustomer()" aria-label="Remove customer filter">×</button>
+        </span>
+      }
     </div>
   }
 

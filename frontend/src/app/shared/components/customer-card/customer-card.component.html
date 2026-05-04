@@ -1,24 +1,20 @@
-<div class="customer-card" role="region" aria-label="Customer information">
-  <div class="customer-card__avatar" aria-hidden="true">
+<div class="flex items-center gap-4" role="region" aria-label="Customer information">
+  <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-700 border-2 border-blue-200 flex items-center justify-center text-xl font-bold flex-shrink-0" aria-hidden="true">
     {{ initial() }}
   </div>
-  <div class="customer-card__info">
-    <span class="customer-card__name">{{ customer().name }}</span>
-    <span class="customer-card__row">
-      <span class="customer-card__icon" aria-hidden="true">✉</span>
-      {{ customer().email }}
+  <div class="flex flex-col gap-1">
+    <span class="font-semibold text-[0.9375rem] text-slate-900 dark:text-slate-50">{{ customer().name }}</span>
+    <span class="flex items-center gap-1.5 text-[0.8125rem] text-slate-500 dark:text-slate-400">
+      <span aria-hidden="true">✉</span>{{ customer().email }}
     </span>
-    <span class="customer-card__row">
-      <span class="customer-card__icon" aria-hidden="true">📍</span>
-      {{ customer().city }}
+    <span class="flex items-center gap-1.5 text-[0.8125rem] text-slate-500 dark:text-slate-400">
+      <span aria-hidden="true">📍</span>{{ customer().city }}
     </span>
-    <span class="customer-card__row">
-      <span class="customer-card__icon" aria-hidden="true">📦</span>
-      {{ customer().orderCount }} {{ customer().orderCount === 1 ? 'order' : 'orders' }} total
+    <span class="flex items-center gap-1.5 text-[0.8125rem] text-slate-500 dark:text-slate-400">
+      <span aria-hidden="true">📦</span>{{ customer().orderCount }} {{ customer().orderCount === 1 ? 'order' : 'orders' }} total
     </span>
-    <span class="customer-card__row">
-      <span class="customer-card__icon" aria-hidden="true">💶</span>
-      {{ customer().lifetimeValue | currency:'EUR':'symbol':'1.2-2':'fr-FR' }} lifetime value
+    <span class="flex items-center gap-1.5 text-[0.8125rem] text-slate-500 dark:text-slate-400">
+      <span aria-hidden="true">💶</span>{{ customer().lifetimeValue | currency:'EUR':'symbol':'1.2-2':'fr-FR' }} lifetime value
     </span>
   </div>
 </div>

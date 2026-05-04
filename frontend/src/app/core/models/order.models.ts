@@ -45,3 +45,18 @@ export interface PageResponse<T> {
   size: number;
   number: number;
 }
+
+export interface OrderItemRequest {
+  productId: number;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface OrderCreateRequest {
+  customerId: number;
+  orderDate: string;
+  status: OrderStatus;
+  paymentMethod: string;
+  shippingAmount: number;
+  items: OrderItemRequest[];
+}

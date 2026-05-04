@@ -6,7 +6,9 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * CORS configuration — restricts cross-origin access to GET requests only.
+ * CORS configuration.
+ * GET — all /api/** endpoints (stats, orders, customers).
+ * POST — write endpoints only (/api/orders, /api/customers).
  * Allowed origins are set via {@code app.cors.allowed-origins} (comma-separated list).
  */
 @Configuration
@@ -19,6 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOrigins(allowedOrigins.split(","))
-                .allowedMethods("GET");
+                .allowedMethods("GET", "POST")
+                .allowedHeaders("Content-Type");
     }
 }

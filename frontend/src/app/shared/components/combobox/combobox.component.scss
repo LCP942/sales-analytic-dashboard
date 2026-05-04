@@ -1,0 +1,13 @@
+.dropdown-item {
+  transition: background 80ms;
+  &:hover { background: #f8fafc; }
+}
+
+:host-context(html.dark) .dropdown-item {
+  &:hover { background: #334155; }
+}
+
+// Red border when the form control is touched + invalid
+:host.ng-touched.ng-invalid .trigger {
+  border-color: #ef4444;
+}

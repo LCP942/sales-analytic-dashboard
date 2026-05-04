@@ -64,6 +64,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   private activeFilters: OrderFilters = {
     statuses:   [],
     search:     '',
+    customer:   '',
     minAmount:  null,
     maxAmount:  null,
     from:       yearAgo(),
@@ -77,21 +78,24 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   // Pre-fill from drill-down query params (set before AfterViewInit)
   private preloadCategory = '';
   private preloadProduct  = '';
+  private preloadCustomer = '';
 
   ngOnInit(): void {
     const params = this.route.snapshot.queryParams;
     this.preloadCategory = params['category'] ?? '';
     this.preloadProduct  = params['product']  ?? '';
+    this.preloadCustomer = params['customer'] ?? '';
 
     if (this.preloadCategory) this.activeFilters.categories = [this.preloadCategory];
     if (this.preloadProduct)  this.activeFilters.product    = this.preloadProduct;
+    if (this.preloadCustomer) this.activeFilters.customer   = this.preloadCustomer;
 
     this.load();
   }
 
   ngAfterViewInit(): void {
-    if (this.preloadCategory || this.preloadProduct) {
-      this.filtersRef.applyExternalFilters(this.preloadCategory, this.preloadProduct);
+    if (this.preloadCategory || this.preloadProduct || this.preloadCustomer) {
+      this.filtersRef.applyExternalFilters(this.preloadCategory, this.preloadProduct, this.preloadCustomer);
     }
   }
 
@@ -117,6 +121,10 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/orders', id]);
   }
 
+  createOrder(): void {
+    this.router.navigate(['/orders/new']);
+  }
+
   clearFilters(): void {
     this.filtersRef.reset();
   }
@@ -127,7 +135,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     const f = this.activeFilters;
     this.ordersService.getOrders(
       f.from, f.to,
-      f.search, f.statuses,
+      f.customer || f.search, f.statuses,
       0, this.totalElements(),
       this.activeSort,
       f.minAmount, f.maxAmount, f.categories, f.product,
@@ -154,7 +162,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     const f = this.activeFilters;
     this.ordersService.getOrders(
       f.from, f.to,
-      f.search, f.statuses,
+      f.customer || f.search, f.statuses,
       this.pageIndex(), this.pageSize,
       this.activeSort,
       f.minAmount, f.maxAmount, f.categories, f.product,

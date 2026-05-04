@@ -1,0 +1,69 @@
+<!-- Trigger — always in DOM so the host keeps its height when the dropdown opens -->
+<button type="button"
+        class="trigger w-full flex items-center gap-2 py-2 px-3 border rounded-md bg-slate-50 dark:bg-slate-900 text-sm text-left cursor-pointer transition-[border-color] duration-[120ms] focus:outline-none font-[inherit] border-slate-200 dark:border-slate-700"
+        [class.opacity-50]="disabled()"
+        [class.cursor-not-allowed]="disabled()"
+        [class.invisible]="isOpen()"
+        [attr.disabled]="disabled() || null"
+        (click)="open()"
+        aria-haspopup="listbox">
+  <span class="flex-1 truncate"
+        [class.text-slate-900]="selectedOpt()"
+        [class.text-slate-400]="!selectedOpt()">
+    {{ selectedOpt()?.label || placeholder }}
+  </span>
+  @if (selectedOpt()) {
+    <button type="button"
+            class="flex items-center justify-center p-0.5 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-transparent border-none cursor-pointer"
+            (click)="clear($event)"
+            aria-label="Clear">
+      <mat-icon class="!text-[14px] !w-3.5 !h-3.5">close</mat-icon>
+    </button>
+  }
+  <mat-icon class="!text-[18px] !w-[18px] !h-[18px] text-slate-400 flex-shrink-0">expand_more</mat-icon>
+</button>
+
+<!-- Open: search input + results dropdown -->
+@if (isOpen()) {
+  <div class="flex flex-col bg-white dark:bg-slate-800 border border-blue-500 rounded-lg shadow-lg overflow-hidden absolute z-50 top-0 left-0 right-0">
+
+    <!-- Search input -->
+    <div class="flex items-center gap-2 px-3 py-2 border-b border-slate-200 dark:border-slate-700">
+      <mat-icon class="!text-[16px] !w-4 !h-4 text-slate-400 flex-shrink-0">search</mat-icon>
+      <input #searchInput
+             class="flex-1 bg-transparent border-none outline-none text-sm font-[inherit] text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+             [formControl]="searchControl"
+             [placeholder]="placeholder"
+             (keydown)="onKeydown($event)"
+             autocomplete="off" />
+      @if (loading()) {
+        <mat-icon class="!text-[16px] !w-4 !h-4 text-slate-400 flex-shrink-0 spin">sync</mat-icon>
+      } @else {
+        <button type="button"
+                class="flex items-center justify-center p-0.5 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-transparent border-none cursor-pointer"
+                (click)="close()"
+                aria-label="Close">
+          <mat-icon class="!text-[16px] !w-4 !h-4">close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <!-- Results list -->
+    <ul class="m-0 p-1 list-none overflow-y-auto max-h-52" role="listbox">
+      @if (!loading() && results().length === 0) {
+        <li class="px-3 py-3 text-sm text-center text-slate-400">No results</li>
+      }
+      @for (opt of results(); track opt.value) {
+        <li class="dropdown-item flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-sm select-none"
+            role="option"
+            (click)="select(opt)">
+          <span class="flex-1 font-medium text-slate-900 dark:text-slate-100 truncate">{{ opt.label }}</span>
+          @if (opt.sublabel) {
+            <span class="text-xs text-slate-400 flex-shrink-0">{{ opt.sublabel }}</span>
+          }
+        </li>
+      }
+    </ul>
+
+  </div>
+}

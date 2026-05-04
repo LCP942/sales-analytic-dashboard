@@ -1,7 +1,9 @@
 package com.lp.salesdashboard.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -12,8 +14,10 @@ public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE)
     private Long id;
+
+    /** Explicit setter used by H2 DAO to hydrate detached instances; not for JPA-managed entities. */
+    public void setId(Long id) { this.id = id; }
 
     @Column(nullable = false, length = 100)
     private String name;
