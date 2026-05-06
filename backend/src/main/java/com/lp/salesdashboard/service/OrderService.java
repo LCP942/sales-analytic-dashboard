@@ -7,6 +7,7 @@ import com.lp.salesdashboard.repository.ProductRepository;
 import com.lp.salesdashboard.repository.SalesOrderRepository;
 import com.lp.salesdashboard.specification.OrderSpecifications;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -84,6 +86,8 @@ public class OrderService {
         }
 
         SalesOrder saved = salesOrderRepository.save(order);
+        log.info("Order created: id={}, customerId={}, items={}, total={}",
+                saved.getId(), req.customerId(), req.items().size(), saved.getTotalAmount());
         return getOrder(saved.getId());
     }
 }

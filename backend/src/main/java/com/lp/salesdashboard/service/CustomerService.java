@@ -5,6 +5,7 @@ import com.lp.salesdashboard.entity.Customer;
 import com.lp.salesdashboard.projection.CustomerSummaryProjection;
 import com.lp.salesdashboard.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
@@ -39,7 +41,9 @@ public class CustomerService {
         c.setEmail(req.email().trim());
         c.setCity(req.city().trim());
         c.setUserCreated(true);
-        return customerRepository.save(c);
+        Customer saved = customerRepository.save(c);
+        log.info("Customer created: id={}, name='{}'", saved.getId(), saved.getName());
+        return saved;
     }
 
     @Transactional(readOnly = true)
