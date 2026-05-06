@@ -7,9 +7,8 @@
         [attr.disabled]="disabled() || null"
         (click)="open()"
         aria-haspopup="listbox">
-  <span class="flex-1 truncate"
-        [class.text-slate-900]="selectedOpt()"
-        [class.text-slate-400]="!selectedOpt()">
+  <span class="flex-1 truncate text-slate-900 dark:text-slate-100"
+        [class.!text-slate-400]="!selectedOpt()">
     {{ selectedOpt()?.label || placeholder }}
   </span>
   @if (selectedOpt()) {
