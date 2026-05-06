@@ -27,7 +27,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins(allowedOrigins.split(","))
                 .allowedMethods("GET", "POST")
-                .allowedHeaders("Content-Type");
+                .allowedHeaders("Content-Type")
+                .exposedHeaders("X-Request-Id");
     }
 
     @Override

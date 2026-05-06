@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!-- ── Dev / default : texte lisible, niveau DEBUG sur notre code ── -->
+  <springProfile name="default">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%blue(%X{requestId:--})] %cyan(%logger{36}) - %msg%n</pattern>
+      </encoder>
+    </appender>
+
+    <logger name="com.lp.salesdashboard" level="DEBUG"/>
+    <logger name="org.springframework"   level="WARN"/>
+    <logger name="org.hibernate"         level="WARN"/>
+
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
+  <!-- ── Prod : JSON structuré sur stdout (collecté par Coolify/Docker) -->
+  <springProfile name="prod">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <customFields>{"app":"sales-dashboard"}</customFields>
+      </encoder>
+    </appender>
+
+    <logger name="com.lp.salesdashboard" level="INFO"/>
+    <logger name="org.springframework"   level="WARN"/>
+    <logger name="org.hibernate"         level="WARN"/>
+
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
+</configuration>
