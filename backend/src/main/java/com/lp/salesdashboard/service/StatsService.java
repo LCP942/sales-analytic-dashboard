@@ -33,8 +33,8 @@ public class StatsService {
 
     private static final int TOP_PRODUCTS_LIMIT = 10;
 
-    private final SalesOrderRepository orderRepo;
-    private final OrderItemRepository itemRepo;
+    private final SalesOrderRepository salesOrderRepository;
+    private final OrderItemRepository orderItemRepository;
 
     // -------------------------------------------------------------------------
     // KPIs
@@ -45,12 +45,12 @@ public class StatsService {
      * to the immediately preceding period of equal length.
      */
     public KpiMetricsDto getKpis(LocalDate from, LocalDate to) {
-        KpiRawDto current = normalize(orderRepo.findKpiMetrics(from, to));
+        KpiRawDto current = normalize(salesOrderRepository.findKpiMetrics(from, to));
 
         long rangeDays = ChronoUnit.DAYS.between(from, to) + 1;
         LocalDate prevTo = from.minusDays(1);
         LocalDate prevFrom = prevTo.minusDays(rangeDays - 1);
-        KpiRawDto previous = normalize(orderRepo.findKpiMetrics(prevFrom, prevTo));
+        KpiRawDto previous = normalize(salesOrderRepository.findKpiMetrics(prevFrom, prevTo));
 
         return new KpiMetricsDto(
                 current.revenue(),
@@ -80,7 +80,7 @@ public class StatsService {
      * ≤ 31 days → daily, ≤ 90 days → weekly (Monday-anchored), otherwise → monthly (YYYY-MM).
      */
     public List<RevenuePointDto> getRevenueOverTime(LocalDate from, LocalDate to) {
-        List<RevenuePointDto> daily = orderRepo.findDailyRevenue(from, to);
+        List<RevenuePointDto> daily = salesOrderRepository.findDailyRevenue(from, to);
         long days = ChronoUnit.DAYS.between(from, to);
 
         if (days <= 31) return daily;
@@ -96,7 +96,7 @@ public class StatsService {
     public List<RevenuePointDto> getOrderCountOverTime(LocalDate from, LocalDate to) {
         long days = ChronoUnit.DAYS.between(from, to);
 
-        List<RevenuePointDto> points = orderRepo.findDailyOrderCount(from, to).stream()
+        List<RevenuePointDto> points = salesOrderRepository.findDailyOrderCount(from, to).stream()
                 .map(p -> new RevenuePointDto(
                         p.getOrderDate().toString(),
                         BigDecimal.valueOf(p.getOrderCount())))
@@ -111,20 +111,16 @@ public class StatsService {
     // Top products
     // -------------------------------------------------------------------------
 
-    public List<TopProductDto> getTopProducts(LocalDate from, LocalDate to) {
-        return itemRepo.findTopProducts(from, to, PageRequest.of(0, TOP_PRODUCTS_LIMIT)).stream()
-                .map(p -> new TopProductDto(p.getName(), p.getRevenue()))
-                .toList();
+    public List<TopProductProjection> getTopProducts(LocalDate from, LocalDate to) {
+        return orderItemRepository.findTopProducts(from, to, PageRequest.of(0, TOP_PRODUCTS_LIMIT));
     }
 
     // -------------------------------------------------------------------------
     // Orders by category
     // -------------------------------------------------------------------------
 
-    public List<CategoryBreakdownDto> getOrdersByCategory(LocalDate from, LocalDate to) {
-        return itemRepo.findOrdersByCategory(from, to).stream()
-                .map(p -> new CategoryBreakdownDto(p.getCategory(), p.getItemCount()))
-                .toList();
+    public List<CategoryProjection> getOrdersByCategory(LocalDate from, LocalDate to) {
+        return orderItemRepository.findOrdersByCategory(from, to);
     }
 
     // -------------------------------------------------------------------------
@@ -140,7 +136,7 @@ public class StatsService {
             revenues.put(d, BigDecimal.ZERO);
         }
 
-        for (DailyStatProjection p : orderRepo.findDailyStats(from, to)) {
+        for (DailyStatProjection p : salesOrderRepository.findDailyStats(from, to)) {
             DayOfWeek dow = p.getOrderDate().getDayOfWeek();
             counts.merge(dow, p.getOrderCount(), Long::sum);
             revenues.merge(dow, p.getRevenue(), BigDecimal::add);

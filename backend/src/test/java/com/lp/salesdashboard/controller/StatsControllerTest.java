@@ -1,6 +1,8 @@
 package com.lp.salesdashboard.controller;
 
 import com.lp.salesdashboard.dto.*;
+import com.lp.salesdashboard.projection.CategoryProjection;
+import com.lp.salesdashboard.projection.TopProductProjection;
 import com.lp.salesdashboard.service.StatsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -75,10 +78,16 @@ class StatsControllerTest {
 
     @Test
     void getTopProducts_returns200WithList() throws Exception {
+        TopProductProjection p1 = mock(TopProductProjection.class);
+        given(p1.getName()).willReturn("Laptop");
+        given(p1.getRevenue()).willReturn(new BigDecimal("1999.98"));
+
+        TopProductProjection p2 = mock(TopProductProjection.class);
+        given(p2.getName()).willReturn("Phone");
+        given(p2.getRevenue()).willReturn(new BigDecimal("499.99"));
+
         given(statsService.getTopProducts(any(LocalDate.class), any(LocalDate.class)))
-                .willReturn(List.of(
-                        new TopProductDto("Laptop", new BigDecimal("1999.98")),
-                        new TopProductDto("Phone",  new BigDecimal("499.99"))));
+                .willReturn(List.of(p1, p2));
 
         mvc.perform(get("/api/stats/top-products").param("from", FROM).param("to", TO))
                 .andExpect(status().isOk())
@@ -88,10 +97,16 @@ class StatsControllerTest {
 
     @Test
     void getOrdersByCategory_returns200WithList() throws Exception {
+        CategoryProjection c1 = mock(CategoryProjection.class);
+        given(c1.getCategory()).willReturn("Electronics");
+        given(c1.getItemCount()).willReturn(42L);
+
+        CategoryProjection c2 = mock(CategoryProjection.class);
+        given(c2.getCategory()).willReturn("Books");
+        given(c2.getItemCount()).willReturn(7L);
+
         given(statsService.getOrdersByCategory(any(LocalDate.class), any(LocalDate.class)))
-                .willReturn(List.of(
-                        new CategoryBreakdownDto("Electronics", 42L),
-                        new CategoryBreakdownDto("Books", 7L)));
+                .willReturn(List.of(c1, c2));
 
         mvc.perform(get("/api/stats/orders-by-category").param("from", FROM).param("to", TO))
                 .andExpect(status().isOk())

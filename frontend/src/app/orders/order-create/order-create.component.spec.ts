@@ -4,12 +4,12 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { of, throwError } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
 
 import { OrderCreateComponent } from './order-create.component';
 import { OrdersService } from '../services/orders.service';
 import { CustomersService } from '../../customers/services/customers.service';
+import { ProductService } from '../../core/services/product.service';
 import { Product } from '../../core/models/product.models';
 import { CustomerSummary } from '../../core/models/customer.models';
 import { OrderDetail } from '../../core/models/order.models';
@@ -44,16 +44,16 @@ describe('OrderCreateComponent', () => {
   let el: HTMLElement;
   let ordersSpy: jasmine.SpyObj<OrdersService>;
   let customersSpy: jasmine.SpyObj<CustomersService>;
-  let httpSpy: jasmine.SpyObj<HttpClient>;
+  let productServiceSpy: jasmine.SpyObj<ProductService>;
   let router: Router;
 
   beforeEach(async () => {
-    ordersSpy    = jasmine.createSpyObj('OrdersService',    ['createOrder']);
-    customersSpy = jasmine.createSpyObj('CustomersService', ['getCustomers']);
-    httpSpy      = jasmine.createSpyObj('HttpClient',       ['get']);
+    ordersSpy          = jasmine.createSpyObj('OrdersService',    ['createOrder']);
+    customersSpy       = jasmine.createSpyObj('CustomersService', ['getCustomers']);
+    productServiceSpy  = jasmine.createSpyObj('ProductService',   ['getAll']);
 
     customersSpy.getCustomers.and.returnValue(of({ content: customers, totalElements: 1, totalPages: 1, size: 200, number: 0 }));
-    httpSpy.get.and.returnValue(of(products));
+    productServiceSpy.getAll.and.returnValue(of(products));
 
     await TestBed.configureTestingModule({
       imports: [OrderCreateComponent],
@@ -63,7 +63,7 @@ describe('OrderCreateComponent', () => {
         provideHttpClient(),
         { provide: OrdersService,    useValue: ordersSpy },
         { provide: CustomersService, useValue: customersSpy },
-        { provide: HttpClient,       useValue: httpSpy },
+        { provide: ProductService,   useValue: productServiceSpy },
         { provide: ActivatedRoute,   useValue: { snapshot: { queryParams: {} } } },
       ],
     }).compileComponents();
@@ -88,6 +88,10 @@ describe('OrderCreateComponent', () => {
     expect(btn.disabled).toBeTrue();
   });
 
+  it('uses ProductService to load products (not HttpClient directly)', () => {
+    expect(productServiceSpy.getAll).toHaveBeenCalledTimes(1);
+  });
+
   // ── addItem / removeItem ──────────────────────────────────────────────────
 
   it('addItem() adds a new line to itemsArray', () => {
@@ -96,7 +100,7 @@ describe('OrderCreateComponent', () => {
   });
 
   it('removeItem() removes the line at the given index', () => {
-    component.addItem(); // now 2 items
+    component.addItem();
     component.removeItem(0);
     expect(component.itemsArray.length).toBe(1);
   });
@@ -105,14 +109,14 @@ describe('OrderCreateComponent', () => {
 
   it('onProductChange() sets the unitPrice from the product catalogue', () => {
     component.products.set(products);
-    component.onProductChange(0, 1); // select Laptop Pro (id=1)
+    component.onProductChange(0, 1);
     expect(component.itemsArray.at(0).get('unitPrice')?.value).toBe(1299.99);
   });
 
   it('onProductChange() sets unitPrice for the second line correctly', () => {
     component.addItem();
     component.products.set(products);
-    component.onProductChange(1, 2); // second line → Headphones
+    component.onProductChange(1, 2);
     expect(component.itemsArray.at(1).get('unitPrice')?.value).toBe(149.99);
   });
 
@@ -169,5 +173,27 @@ describe('OrderCreateComponent', () => {
     component.submit();
     tick();
     expect(component.saving()).toBeFalse();
+  }));
+
+  it('submit sends the local calendar date, not the UTC-shifted date', fakeAsync(() => {
+    spyOn(router, 'navigate');
+    ordersSpy.createOrder.and.returnValue(of(mockOrderDetail));
+
+    const localDate = new Date(2026, 4, 5);
+    const expectedIso = [
+      localDate.getFullYear(),
+      String(localDate.getMonth() + 1).padStart(2, '0'),
+      String(localDate.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    component.form.patchValue({
+      customerId: 1, status: 'PENDING', paymentMethod: 'Credit Card',
+      shippingAmount: 0, orderDate: localDate,
+    });
+    component.itemsArray.at(0).patchValue({ productId: 1, quantity: 1, unitPrice: 100 });
+    component.submit();
+    tick();
+
+    expect(ordersSpy.createOrder.calls.first().args[0].orderDate).toBe(expectedIso);
   }));
 });

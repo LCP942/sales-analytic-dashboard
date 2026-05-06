@@ -1,6 +1,8 @@
 package com.lp.salesdashboard.controller;
 
 import com.lp.salesdashboard.dto.*;
+import com.lp.salesdashboard.projection.CategoryProjection;
+import com.lp.salesdashboard.projection.TopProductProjection;
 import com.lp.salesdashboard.service.StatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -41,7 +43,9 @@ public class StatsController {
     public List<TopProductDto> getTopProducts(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return statsService.getTopProducts(from, to);
+        return statsService.getTopProducts(from, to).stream()
+                .map(StatsController::toDto)
+                .toList();
     }
 
     @GetMapping("/orders-by-weekday")
@@ -55,6 +59,16 @@ public class StatsController {
     public List<CategoryBreakdownDto> getOrdersByCategory(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return statsService.getOrdersByCategory(from, to);
+        return statsService.getOrdersByCategory(from, to).stream()
+                .map(StatsController::toDto)
+                .toList();
+    }
+
+    private static TopProductDto toDto(TopProductProjection p) {
+        return new TopProductDto(p.getName(), p.getRevenue());
+    }
+
+    private static CategoryBreakdownDto toDto(CategoryProjection p) {
+        return new CategoryBreakdownDto(p.getCategory(), p.getItemCount());
     }
 }

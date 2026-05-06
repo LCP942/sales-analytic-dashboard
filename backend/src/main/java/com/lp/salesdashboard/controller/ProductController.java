@@ -14,11 +14,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductRepository repo;
+    private final ProductRepository productRepository;
 
     @GetMapping
     public List<ProductDto> getProducts() {
-        return repo.findAll().stream()
+        return productRepository.findAll().stream()
                 .map(p -> new ProductDto(p.getId(), p.getName(), p.getCategory(), p.getPrice()))
                 .toList();
     }

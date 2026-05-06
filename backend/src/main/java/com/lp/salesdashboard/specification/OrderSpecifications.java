@@ -12,6 +12,9 @@ import java.util.List;
 public class OrderSpecifications {
 
     public static Specification<SalesOrder> betweenDates(LocalDate from, LocalDate to) {
+        if (from == null && to == null) return null;
+        if (from == null) return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("orderDate"), to);
+        if (to == null)   return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("orderDate"), from);
         return (root, query, cb) -> cb.between(root.get("orderDate"), from, to);
     }
 

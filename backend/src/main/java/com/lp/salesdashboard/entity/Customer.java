@@ -16,9 +16,6 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Explicit setter used by H2 DAO to hydrate detached instances; not for JPA-managed entities. */
-    public void setId(Long id) { this.id = id; }
-
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -27,4 +24,7 @@ public class Customer {
 
     @Column(nullable = false, length = 100)
     private String city;
+
+    @Column(name = "user_created", nullable = false)
+    private boolean userCreated = false;
 }

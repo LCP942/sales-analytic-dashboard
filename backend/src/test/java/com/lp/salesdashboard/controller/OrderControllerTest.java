@@ -1,25 +1,32 @@
 package com.lp.salesdashboard.controller;
 
 import com.lp.salesdashboard.dto.*;
-import com.lp.salesdashboard.entity.OrderStatus;
+import com.lp.salesdashboard.entity.*;
+import com.lp.salesdashboard.projection.CustomerSummaryProjection;
+import com.lp.salesdashboard.service.CustomerService;
 import com.lp.salesdashboard.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(OrderController.class)
@@ -31,28 +38,61 @@ class OrderControllerTest {
     @MockBean
     private OrderService orderService;
 
+    @MockBean
+    private CustomerService customerService;
+
     private static final String FROM = "2026-01-01";
     private static final String TO   = "2026-01-31";
 
-    private OrderSummaryDto summaryDto() {
-        return new OrderSummaryDto(1L, LocalDate.of(2026, 1, 15),
-                "Alice Martin", new BigDecimal("299.99"), OrderStatus.DELIVERED);
+    private SalesOrder orderEntity() {
+        try {
+            Customer customer = new Customer();
+            customer.setName("Alice Martin");
+            customer.setEmail("alice@example.com");
+            customer.setCity("Paris");
+            setField(customer, "id", 10L);
+
+            Product product = new Product();
+            product.setName("Laptop");
+            product.setCategory("Electronics");
+
+            OrderItem item = new OrderItem();
+            item.setProduct(product);
+            item.setQuantity(1);
+            item.setUnitPrice(new BigDecimal("249.99"));
+
+            SalesOrder order = new SalesOrder();
+            setField(order, "id", 1L);
+            order.setCustomer(customer);
+            order.setOrderDate(LocalDate.of(2026, 1, 15));
+            order.setTotalAmount(new BigDecimal("299.99"));
+            order.setShippingAmount(new BigDecimal("50.00"));
+            order.setPaymentMethod("Credit Card");
+            order.setStatus(OrderStatus.DELIVERED);
+            item.setOrder(order);
+            order.getItems().add(item);
+
+            return order;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private OrderDetailDto detailDto() {
-        CustomerDto customer = new CustomerDto(
-                10L, "Alice Martin", "alice@example.com", "Paris", 3,
-                new BigDecimal("899.97"));
+    private CustomerSummaryProjection customerStats() {
+        CustomerSummaryProjection stats = mock(CustomerSummaryProjection.class);
+        given(stats.getId()).willReturn(10L);
+        given(stats.getName()).willReturn("Alice Martin");
+        given(stats.getEmail()).willReturn("alice@example.com");
+        given(stats.getCity()).willReturn("Paris");
+        given(stats.getOrderCount()).willReturn(3L);
+        given(stats.getLifetimeValue()).willReturn(new BigDecimal("899.97"));
+        return stats;
+    }
 
-        OrderItemDto item = new OrderItemDto(
-                "Laptop", "Electronics", 1,
-                new BigDecimal("249.99"), new BigDecimal("249.99"));
-
-        return new OrderDetailDto(
-                1L, LocalDate.of(2026, 1, 15),
-                new BigDecimal("299.99"), OrderStatus.DELIVERED,
-                customer, 1, List.of(item),
-                new BigDecimal("249.99"), new BigDecimal("50.00"), "Credit Card");
+    private static void setField(Object obj, String name, Object value) throws Exception {
+        Field f = obj.getClass().getDeclaredField(name);
+        f.setAccessible(true);
+        f.set(obj, value);
     }
 
     // -------------------------------------------------------------------------
@@ -64,7 +104,7 @@ class OrderControllerTest {
         given(orderService.getOrders(
                 any(), any(), anyString(), anyList(),
                 any(), any(), anyList(), anyString(), any(Pageable.class)))
-                .willReturn(new PageImpl<>(List.of(summaryDto())));
+                .willReturn(new PageImpl<>(List.of(orderEntity())));
 
         mvc.perform(get("/api/orders").param("from", FROM).param("to", TO))
                 .andExpect(status().isOk())
@@ -79,7 +119,7 @@ class OrderControllerTest {
                 any(), any(), anyString(),
                 eq(List.of(OrderStatus.PENDING, OrderStatus.SHIPPED)),
                 any(), any(), anyList(), anyString(), any(Pageable.class)))
-                .willReturn(new PageImpl<>(List.of()));
+                .willReturn(Page.empty());
 
         mvc.perform(get("/api/orders")
                         .param("from", FROM).param("to", TO)
@@ -97,9 +137,36 @@ class OrderControllerTest {
     }
 
     @Test
-    void getOrders_missingFrom_returns400() throws Exception {
+    void getOrders_missingFrom_returns200() throws Exception {
+        given(orderService.getOrders(
+                isNull(), any(), anyString(), anyList(),
+                any(), any(), anyList(), anyString(), any(Pageable.class)))
+                .willReturn(Page.empty());
+
         mvc.perform(get("/api/orders").param("to", TO))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getOrders_missingTo_returns200() throws Exception {
+        given(orderService.getOrders(
+                any(), isNull(), anyString(), anyList(),
+                any(), any(), anyList(), anyString(), any(Pageable.class)))
+                .willReturn(Page.empty());
+
+        mvc.perform(get("/api/orders").param("from", FROM))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getOrders_missingBothDates_returns200() throws Exception {
+        given(orderService.getOrders(
+                isNull(), isNull(), anyString(), anyList(),
+                any(), any(), anyList(), anyString(), any(Pageable.class)))
+                .willReturn(Page.empty());
+
+        mvc.perform(get("/api/orders"))
+                .andExpect(status().isOk());
     }
 
     // -------------------------------------------------------------------------
@@ -108,7 +175,9 @@ class OrderControllerTest {
 
     @Test
     void getOrder_returns200WithDetail() throws Exception {
-        given(orderService.getOrder(1L)).willReturn(detailDto());
+        CustomerSummaryProjection stats = customerStats();
+        given(orderService.getOrder(1L)).willReturn(orderEntity());
+        given(customerService.getCustomer(any())).willReturn(stats);
 
         mvc.perform(get("/api/orders/1"))
                 .andExpect(status().isOk())
@@ -126,5 +195,47 @@ class OrderControllerTest {
 
         mvc.perform(get("/api/orders/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/orders
+    // -------------------------------------------------------------------------
+
+    @Test
+    void createOrder_withNullCustomerId_returns400() throws Exception {
+        String body = """
+                {"customerId":null,"orderDate":"2026-01-01","status":"PENDING",
+                 "paymentMethod":"Credit Card","shippingAmount":0,
+                 "items":[{"productId":1,"quantity":1,"unitPrice":100.00}]}
+                """;
+        mvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createOrder_withEmptyItems_returns400() throws Exception {
+        String body = """
+                {"customerId":1,"orderDate":"2026-01-01","status":"PENDING",
+                 "paymentMethod":"Credit Card","shippingAmount":0,"items":[]}
+                """;
+        mvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createOrder_withInvalidItemQuantity_returns400() throws Exception {
+        String body = """
+                {"customerId":1,"orderDate":"2026-01-01","status":"PENDING",
+                 "paymentMethod":"Credit Card","shippingAmount":0,
+                 "items":[{"productId":1,"quantity":0,"unitPrice":100.00}]}
+                """;
+        mvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
     }
 }

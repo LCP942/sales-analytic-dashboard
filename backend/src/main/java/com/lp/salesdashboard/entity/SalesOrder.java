@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -35,12 +36,18 @@ public class SalesOrder {
     @Column(name = "status", nullable = false, length = 20)
     private OrderStatus status;
 
+    @Setter
     @Column(name = "payment_method", nullable = false, length = 50)
     private String paymentMethod = "Credit Card";
 
+    @Setter
     @Column(name = "shipping_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal shippingAmount = BigDecimal.ZERO;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-    private List<OrderItem> items;
+    @Setter
+    @Column(name = "user_created", nullable = false)
+    private boolean userCreated = false;
+
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
 }

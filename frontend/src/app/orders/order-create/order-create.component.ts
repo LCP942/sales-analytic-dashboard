@@ -10,13 +10,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { HttpClient } from '@angular/common/http';
 
 import { OrdersService } from '../services/orders.service';
 import { CustomersService } from '../../customers/services/customers.service';
+import { ProductService } from '../../core/services/product.service';
 import { Product } from '../../core/models/product.models';
 import { OrderStatus } from '../../core/models/order.models';
-import { environment } from '../../../environments/environment';
+import { toLocalIso } from '../../core/utils/date.utils';
 import { SelectComponent } from '../../shared/components/select/select.component';
 import { ComboboxComponent } from '../../shared/components/combobox/combobox.component';
 import { SelectOption } from '../../shared/models/select.models';
@@ -42,7 +42,7 @@ import { SelectOption } from '../../shared/models/select.models';
 export class OrderCreateComponent implements OnInit {
   private readonly ordersService    = inject(OrdersService);
   private readonly customersService = inject(CustomersService);
-  private readonly http             = inject(HttpClient);
+  private readonly productService   = inject(ProductService);
   private readonly router           = inject(Router);
   private readonly route            = inject(ActivatedRoute);
   private readonly fb               = inject(FormBuilder);
@@ -62,13 +62,12 @@ export class OrderCreateComponent implements OnInit {
   ];
 
   readonly paymentOptions: SelectOption[] = [
-    { value: 'Credit Card',    label: 'Credit Card' },
-    { value: 'PayPal',         label: 'PayPal' },
-    { value: 'Bank Transfer',  label: 'Bank Transfer' },
-    { value: 'Cash',           label: 'Cash' },
+    { value: 'Credit Card',   label: 'Credit Card' },
+    { value: 'PayPal',        label: 'PayPal' },
+    { value: 'Bank Transfer', label: 'Bank Transfer' },
+    { value: 'Cash',          label: 'Cash' },
   ];
 
-  /** Filters the in-memory product list — no backend call needed. */
   readonly searchProducts = (query: string) => {
     const q = query.trim().toLowerCase();
     const all = this.products();
@@ -78,7 +77,6 @@ export class OrderCreateComponent implements OnInit {
     return of(filtered.slice(0, 10).map(p => ({ value: p.id, label: p.name, sublabel: p.category })));
   };
 
-  /** Debounced search toward the backend, max 10 results. */
   readonly searchCustomers = (query: string) =>
     this.customersService.getCustomers(query, 0, 10).pipe(
       map(page => page.content.map(c => ({ value: c.id, label: c.name, sublabel: c.city }))),
@@ -109,10 +107,10 @@ export class OrderCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const params             = this.route.snapshot.queryParams;
-    const preloadCustomerId  = Number(params['customerId'])   || null;
-    const preloadName        = params['customerName']  as string | undefined;
-    const preloadCity        = params['customerCity']  as string | undefined;
+    const params            = this.route.snapshot.queryParams;
+    const preloadCustomerId = Number(params['customerId']) || null;
+    const preloadName       = params['customerName'] as string | undefined;
+    const preloadCity       = params['customerCity'] as string | undefined;
 
     if (preloadCustomerId && preloadName) {
       const opt: SelectOption = { value: preloadCustomerId, label: preloadName, sublabel: preloadCity };
@@ -120,7 +118,7 @@ export class OrderCreateComponent implements OnInit {
       this.form.controls.customerId.setValue(preloadCustomerId);
     }
 
-    this.http.get<Product[]>(`${environment.apiBaseUrl}/products`).subscribe({
+    this.productService.getAll().subscribe({
       next: products => {
         this.products.set(products);
         this.loading.set(false);
@@ -156,8 +154,8 @@ export class OrderCreateComponent implements OnInit {
     const v = this.form.getRawValue();
     const rawDate = v.orderDate;
     const orderDate = rawDate instanceof Date
-      ? rawDate.toISOString().split('T')[0]
-      : rawDate != null ? String(rawDate) : new Date().toISOString().split('T')[0];
+      ? toLocalIso(rawDate)
+      : rawDate != null ? String(rawDate) : toLocalIso(new Date());
 
     this.ordersService.createOrder({
       customerId:    v.customerId!,

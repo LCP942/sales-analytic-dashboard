@@ -14,15 +14,9 @@ import { MatRippleModule } from '@angular/material/core';
 
 import { OrdersService } from './services/orders.service';
 import { OrderSummary } from '../core/models/order.models';
+import { toLocalIso, yearAgo } from '../core/utils/date.utils';
 import { StatusBadgeComponent } from '../shared/components/status-badge/status-badge.component';
 import { OrderFiltersComponent, OrderFilters } from '../shared/components/order-filters/order-filters.component';
-
-function toIso(d: Date): string { return d.toISOString().split('T')[0]; }
-function yearAgo(): string {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() - 1);
-  return toIso(d);
-}
 
 @Component({
   selector: 'app-orders',
@@ -51,8 +45,8 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   private readonly route         = inject(ActivatedRoute);
   private readonly destroyRef    = inject(DestroyRef);
 
-  columns = ['id', 'orderDate', 'customerName', 'status', 'totalAmount', 'actions'];
-  pageSize = 10;
+  readonly columns = ['id', 'orderDate', 'customerName', 'status', 'totalAmount', 'actions'];
+  pageSize = signal(10);
 
   orders        = signal<OrderSummary[]>([]);
   totalElements = signal(0);
@@ -68,14 +62,13 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     minAmount:  null,
     maxAmount:  null,
     from:       yearAgo(),
-    to:         toIso(new Date()),
+    to:         toLocalIso(new Date()),
     categories: [],
     product:    '',
   };
 
   private activeSort = 'orderDate,desc';
 
-  // Pre-fill from drill-down query params (set before AfterViewInit)
   private preloadCategory = '';
   private preloadProduct  = '';
   private preloadCustomer = '';
@@ -113,7 +106,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
 
   onPage(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
-    this.pageSize = event.pageSize;
+    this.pageSize.set(event.pageSize);
     this.load();
   }
 
@@ -141,9 +134,10 @@ export class OrdersComponent implements OnInit, AfterViewInit {
       f.minAmount, f.maxAmount, f.categories, f.product,
     ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: page => {
+        const escape = (v: unknown) => `"${String(v).replace(/"/g, '""')}"`;
         const headers = ['ID', 'Date', 'Customer', 'Status', 'Total (EUR)'];
         const rows = page.content.map(o => [o.id, o.orderDate, o.customerName, o.status, o.totalAmount]);
-        const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+        const csv = [headers, ...rows].map(r => r.map(escape).join(',')).join('\n');
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -163,7 +157,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     this.ordersService.getOrders(
       f.from, f.to,
       f.customer || f.search, f.statuses,
-      this.pageIndex(), this.pageSize,
+      this.pageIndex(), this.pageSize(),
       this.activeSort,
       f.minAmount, f.maxAmount, f.categories, f.product,
     ).pipe(

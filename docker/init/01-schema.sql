@@ -3,10 +3,11 @@ CREATE DATABASE IF NOT EXISTS sales_dashboard CHARACTER SET utf8mb4 COLLATE utf8
 USE sales_dashboard;
 
 CREATE TABLE IF NOT EXISTS customers (
-    id    BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name  VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    city  VARCHAR(100) NOT NULL
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name         VARCHAR(100) NOT NULL,
+    email        VARCHAR(100) NOT NULL,
+    city         VARCHAR(100) NOT NULL,
+    user_created BOOLEAN      NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS sales_orders (
     status          VARCHAR(20)    NOT NULL DEFAULT 'PENDING',
     payment_method  VARCHAR(50)    NOT NULL DEFAULT 'Credit Card',
     shipping_amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    user_created    BOOLEAN        NOT NULL DEFAULT FALSE,
     FOREIGN KEY (customer_id) REFERENCES customers (id),
     INDEX idx_order_date (order_date)
 );

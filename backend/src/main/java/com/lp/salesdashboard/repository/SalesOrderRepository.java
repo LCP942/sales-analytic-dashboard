@@ -11,11 +11,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -81,4 +82,14 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
     /** Returns the lifetime revenue for a customer. {@code COALESCE} ensures 0 is returned rather than {@code null} when no orders exist. */
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM SalesOrder o WHERE o.customer.id = :customerId")
     BigDecimal sumTotalByCustomerId(@Param("customerId") Long customerId);
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM OrderItem oi WHERE oi.order IN (SELECT o FROM SalesOrder o WHERE o.userCreated = true)")
+    int deleteUserCreatedOrderItems();
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM SalesOrder o WHERE o.userCreated = true")
+    int deleteUserCreatedOrders();
 }

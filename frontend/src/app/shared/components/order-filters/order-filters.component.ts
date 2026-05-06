@@ -6,6 +6,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { debounceTime, distinctUntilChanged, merge } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { OrderStatus } from '../../../core/models/order.models';
+import { toLocalIso, yearAgo, today } from '../../../core/utils/date.utils';
 
 export interface OrderFilters {
   statuses: OrderStatus[];
@@ -27,22 +28,10 @@ const STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
   { value: 'CANCELLED', label: 'Cancelled' },
 ];
 
-function toIso(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
 function parseIso(iso: string): Date {
   const [y, m, d] = iso.split('-').map(Number);
   return new Date(y, m - 1, d);
 }
-
-function yearAgo(): string {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() - 1);
-  return toIso(d);
-}
-
-function today(): string { return toIso(new Date()); }
 
 @Component({
   selector: 'app-order-filters',
@@ -66,17 +55,14 @@ export class OrderFiltersComponent {
   fromDate = signal<Date>(parseIso(yearAgo()));
   toDate   = signal<Date>(parseIso(today()));
 
-  // Set by external navigation (dashboard drill-down or customer detail), displayed as removable chips.
   selectedCategories = signal<string[]>([]);
   selectedProduct    = signal<string>('');
   selectedCustomer   = signal<string>('');
 
-  // Signals mirroring FormControl values so computed() can track them.
   private readonly searchValue  = toSignal(this.searchControl.valueChanges,    { initialValue: '' });
   private readonly minValue     = toSignal(this.minAmountControl.valueChanges, { initialValue: null as number | null });
   private readonly maxValue     = toSignal(this.maxAmountControl.valueChanges, { initialValue: null as number | null });
 
-  // Stored at construction time so the comparison is stable within a session.
   private readonly defaultFrom = yearAgo();
   private readonly defaultTo   = today();
 
@@ -85,8 +71,8 @@ export class OrderFiltersComponent {
     && (this.searchValue()  ?? '') === ''
     && this.minValue()  === null
     && this.maxValue()  === null
-    && toIso(this.fromDate()) === this.defaultFrom
-    && toIso(this.toDate())   === this.defaultTo
+    && toLocalIso(this.fromDate()) === this.defaultFrom
+    && toLocalIso(this.toDate())   === this.defaultTo
     && this.selectedCategories().length === 0
     && this.selectedProduct()  === ''
     && this.selectedCustomer() === ''
@@ -122,7 +108,6 @@ export class OrderFiltersComponent {
     this.emit();
   }
 
-  /** Pre-fills category, product, and/or customer from external navigation (dashboard drill-down, customer detail). */
   applyExternalFilters(category: string, product: string, customer = ''): void {
     if (category) this.selectedCategories.set([category]);
     if (product)  this.selectedProduct.set(product);
@@ -185,8 +170,8 @@ export class OrderFiltersComponent {
       product:    this.selectedProduct(),
       minAmount:  this.minAmountControl.value,
       maxAmount:  this.maxAmountControl.value,
-      from:       toIso(this.fromDate()),
-      to:         toIso(this.toDate()),
+      from:       toLocalIso(this.fromDate()),
+      to:         toLocalIso(this.toDate()),
       categories: this.selectedCategories(),
     });
   }
