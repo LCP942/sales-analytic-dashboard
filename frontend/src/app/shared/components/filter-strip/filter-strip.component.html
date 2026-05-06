@@ -4,7 +4,8 @@
 
   <div class="flex gap-1">
     @for (p of presets; track p.value) {
-      <button class="py-1.5 px-3.5 rounded-md border text-[13px] font-[inherit] cursor-pointer transition-[background,color,border-color] duration-[120ms]"
+      <button class="filter-strip__btn py-1.5 px-3.5 rounded-md border text-[13px] font-[inherit] cursor-pointer transition-[background,color,border-color] duration-[120ms]"
+              [class.active]="filter.activePreset() === p.value"
               [class.bg-blue-500]="filter.activePreset() === p.value"
               [class.border-blue-500]="filter.activePreset() === p.value"
               [class.text-white]="filter.activePreset() === p.value"

@@ -73,7 +73,7 @@ describe('CustomerDetailComponent', () => {
     component.createOrder();
     expect(spy).toHaveBeenCalledOnceWith(
       ['/orders/new'],
-      { queryParams: { customerId: 1 } },
+      { queryParams: { customerId: 1, customerName: 'Alice Martin', customerCity: 'Paris' } },
     );
   });
 

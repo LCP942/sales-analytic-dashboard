@@ -1,9 +1,9 @@
-<div class="flex items-center gap-4" role="region" aria-label="Customer information">
-  <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-700 border-2 border-blue-200 flex items-center justify-center text-xl font-bold flex-shrink-0" aria-hidden="true">
+<div class="customer-card flex items-center gap-4" role="region" aria-label="Customer information">
+  <div class="customer-card__avatar w-12 h-12 rounded-full bg-blue-50 text-blue-700 border-2 border-blue-200 flex items-center justify-center text-xl font-bold flex-shrink-0" aria-hidden="true">
     {{ initial() }}
   </div>
   <div class="flex flex-col gap-1">
-    <span class="font-semibold text-[0.9375rem] text-slate-900 dark:text-slate-50">{{ customer().name }}</span>
+    <span class="customer-card__name font-semibold text-[0.9375rem] text-slate-900 dark:text-slate-50">{{ customer().name }}</span>
     <span class="flex items-center gap-1.5 text-[0.8125rem] text-slate-500 dark:text-slate-400">
       <span aria-hidden="true">✉</span>{{ customer().email }}
     </span>

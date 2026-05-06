@@ -13,13 +13,13 @@
 
   <div class="relative flex items-center w-[320px] max-[479px]:w-full">
     <mat-icon class="absolute left-2.5 text-[18px] !w-[18px] !h-[18px] text-slate-400 pointer-events-none">search</mat-icon>
-    <input class="app-input !pl-9 !pr-8"
+    <input class="search-bar__input app-input !pl-9 !pr-8"
            [value]="searchName"
            (input)="onSearchInput($event)"
            placeholder="Search by name…"
            aria-label="Search customers by name" />
     @if (searchName) {
-      <button class="absolute right-1.5 flex items-center justify-center bg-transparent border-none cursor-pointer text-slate-400 p-0.5 rounded hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700"
+      <button class="search-bar__clear absolute right-1.5 flex items-center justify-center bg-transparent border-none cursor-pointer text-slate-400 p-0.5 rounded hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700"
               type="button" (click)="clearSearch()" aria-label="Clear search">
         <mat-icon class="!text-[16px] !w-4 !h-4">close</mat-icon>
       </button>
