@@ -11,3 +11,4 @@
 !Dockerfile
 !nginx.conf
 !vercel.json
+!tailwind.config.js
