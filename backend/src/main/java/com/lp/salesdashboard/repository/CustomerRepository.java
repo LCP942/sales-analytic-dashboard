@@ -10,9 +10,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
+
+    List<Customer> findAllByUserCreatedFalse();
+
 
     @Query(value = """
             SELECT c.id AS id, c.name AS name, c.email AS email, c.city AS city,

@@ -11,11 +11,10 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./docker/init:/docker-entrypoint-initdb.d:ro
       - ./docker/mysql/my.cnf:/etc/mysql/conf.d/charset.cnf:ro
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysql -u dashboard -pdashboard sales_dashboard -e 'SELECT 1 FROM products LIMIT 1' 2>/dev/null"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dashboard", "-pdashboard"]
       interval: 5s
       timeout: 5s
       retries: 30
