@@ -14,8 +14,8 @@ import java.util.List;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     /**
-     * Ranks products by total revenue ({@code quantity × unit_price}) within the date range.
-     * Native query — JPQL does not support the {@code GROUP BY p.id} with Pageable in all JPA providers.
+     * Ranks products by total revenue ({@code quantity * unit_price}) within the date range.
+     * Native query - JPQL does not support the {@code GROUP BY p.id} with Pageable in all JPA providers.
      * {@code Pageable} controls the result count (use {@code PageRequest.of(0, n)}).
      */
     @Query(value = """

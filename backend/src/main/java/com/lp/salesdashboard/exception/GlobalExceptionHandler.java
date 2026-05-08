@@ -49,22 +49,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 headers, status, request);
     }
 
-    /** Logs known business errors (404, 400, …) as warn, server errors as error. */
+    /** Logs known business errors (404, 400, etc.) as warn, server errors as error. */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleResponseStatus(
             ResponseStatusException ex, HttpServletRequest req) {
         int code = ex.getStatusCode().value();
         String reason = ex.getReason() != null ? ex.getReason() : ex.getMessage();
         if (code >= 500) {
-            log.error("{} {} → {} {}", req.getMethod(), req.getRequestURI(), code, reason, ex);
+            log.error("{} {} -> {} {}", req.getMethod(), req.getRequestURI(), code, reason, ex);
         } else {
-            log.warn("{} {} → {} {}", req.getMethod(), req.getRequestURI(), code, reason);
+            log.warn("{} {} -> {} {}", req.getMethod(), req.getRequestURI(), code, reason);
         }
         return ResponseEntity.status(ex.getStatusCode())
                 .body(Map.of("status", code, "error", reason));
     }
 
-    /** Fallback for any unhandled exception — returns a generic 500 to avoid leaking internals. */
+    /** Fallback for any unhandled exception - returns a generic 500 to avoid leaking internals. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleUnexpected(
             Exception ex, HttpServletRequest req) {

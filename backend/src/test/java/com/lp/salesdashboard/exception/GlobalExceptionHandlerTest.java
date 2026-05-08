@@ -49,7 +49,7 @@ class GlobalExceptionHandlerTest {
     }
 
     // -------------------------------------------------------------------------
-    // ResponseStatusException → WARN
+    // ResponseStatusException -> WARN
     // -------------------------------------------------------------------------
 
     @Test
@@ -72,7 +72,7 @@ class GlobalExceptionHandlerTest {
     }
 
     // -------------------------------------------------------------------------
-    // MethodArgumentNotValidException → WARN + champs invalides dans le corps
+    // MethodArgumentNotValidException -> WARN + champs invalides dans le corps
     // -------------------------------------------------------------------------
 
     @Test
@@ -94,7 +94,7 @@ class GlobalExceptionHandlerTest {
     }
 
     // -------------------------------------------------------------------------
-    // Exception inattendue → ERROR + corps générique sans détails internes
+    // Exception inattendue -> ERROR + corps generique sans details internes
     // -------------------------------------------------------------------------
 
     @Test

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-  <!-- ── Dev / default : texte lisible, niveau DEBUG sur notre code ── -->
+  <!-- Dev / default: readable text, DEBUG level for our code -->
   <springProfile name="default">
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
       <encoder>
@@ -18,7 +18,7 @@
     </root>
   </springProfile>
 
-  <!-- ── Prod : JSON structuré sur stdout (collecté par Coolify/Docker) -->
+  <!-- Prod: structured JSON on stdout (collected by Coolify/Docker) -->
   <springProfile name="prod">
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
       <encoder class="net.logstash.logback.encoder.LogstashEncoder">

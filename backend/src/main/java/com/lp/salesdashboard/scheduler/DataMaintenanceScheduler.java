@@ -28,7 +28,7 @@ public class DataMaintenanceScheduler implements ApplicationRunner {
         });
     }
 
-    // fixedDelay: next run starts 1 hour after the previous one completes — no overlap
+    // fixedDelay: next run starts 1 hour after the previous one completes - no overlap
     // initialDelay: skip the first hour since run() already triggers it on startup
     @Scheduled(fixedDelay = 3_600_000, initialDelay = 3_600_000)
     public void maintain() {

@@ -32,7 +32,7 @@ class CustomerControllerTest {
         return c;
     }
 
-    // ── valid payload ─────────────────────────────────────────────────────────
+    // 
 
     @Test
     void createCustomer_withValidBody_returns201() throws Exception {
@@ -44,7 +44,7 @@ class CustomerControllerTest {
                 .andExpect(status().isCreated());
     }
 
-    // ── Bean Validation failures ──────────────────────────────────────────────
+    // 
 
     @Test
     void createCustomer_withBlankName_returns400() throws Exception {
@@ -78,7 +78,7 @@ class CustomerControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    // ── helper ────────────────────────────────────────────────────────────────
+    // 
 
     private String json(Object o) throws Exception {
         return objectMapper.writeValueAsString(o);

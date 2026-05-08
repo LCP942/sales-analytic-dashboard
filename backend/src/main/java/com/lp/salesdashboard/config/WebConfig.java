@@ -9,8 +9,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * CORS configuration.
- * GET — all /api/** endpoints (stats, orders, customers).
- * POST — write endpoints only (/api/orders, /api/customers).
+ * GET - all /api/** endpoints (stats, orders, customers).
+ * POST - write endpoints only (/api/orders, /api/customers).
  * Allowed origins are set via {@code app.cors.allowed-origins} (comma-separated list).
  */
 @Configuration

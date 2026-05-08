@@ -42,7 +42,7 @@ class DataMaintenanceServiceTest {
         ReflectionTestUtils.setField(service, "windowYears", 1);
     }
 
-    // ── early-exit ────────────────────────────────────────────────────────────
+    // 
 
     @Test
     void ensureDataWindow_exitsEarly_whenDataAlreadyCoversWindow() {
@@ -65,7 +65,7 @@ class DataMaintenanceServiceTest {
         verify(salesOrderRepository, never()).findMaxSystemOrderDate();
     }
 
-    // ── pruning ───────────────────────────────────────────────────────────────
+    // 
 
     @Test
     void ensureDataWindow_prunesWithCorrectCutoffDate() {
@@ -94,7 +94,7 @@ class DataMaintenanceServiceTest {
         ordered.verify(salesOrderRepository, atLeastOnce()).saveAll(any());
     }
 
-    // ── generation triggers ───────────────────────────────────────────────────
+    // 
 
     @Test
     void ensureDataWindow_generatesOrders_whenMaxDateBeforeWindowEnd() {
@@ -153,7 +153,7 @@ class DataMaintenanceServiceTest {
         assertThat(latest).isBeforeOrEqualTo(expectedWindowEnd);
     }
 
-    // ── generated order invariants ────────────────────────────────────────────
+    // 
 
     @Test
     void generatedOrders_areNotUserCreated() {
@@ -212,11 +212,11 @@ class DataMaintenanceServiceTest {
         assertThat(allCaptured()).allMatch(o -> !o.getCustomer().isUserCreated());
     }
 
-    // ── status rules ──────────────────────────────────────────────────────────
+    // 
 
     @Test
     void futureOrders_haveOnlyPendingOrConfirmedStatus() {
-        // maxDate = today → only future orders are generated
+        // maxDate = today -> only future orders are generated
         given(salesOrderRepository.findMaxSystemOrderDate())
             .willReturn(Optional.of(LocalDate.now()));
         given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
@@ -243,7 +243,7 @@ class DataMaintenanceServiceTest {
         service.ensureDataWindow();
 
         verify(salesOrderRepository, atLeastOnce()).saveAll(batchCaptor.capture());
-        // Filter for the "≤7 days old" bucket — across ~730 days of generation
+        // Filter for the "<=7 days old" bucket - across ~730 days of generation
         // we're virtually guaranteed to have orders here
         LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);
         List<SalesOrder> recentOrders = allCaptured().stream()
@@ -255,7 +255,7 @@ class DataMaintenanceServiceTest {
         assertThat(recentOrders).allMatch(o -> o.getStatus() != OrderStatus.DELIVERED);
     }
 
-    // ── helpers ───────────────────────────────────────────────────────────────
+    // 
 
     @SuppressWarnings("unchecked")
     private List<SalesOrder> allCaptured() {

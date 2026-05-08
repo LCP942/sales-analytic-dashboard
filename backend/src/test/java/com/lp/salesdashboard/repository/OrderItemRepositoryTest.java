@@ -79,7 +79,7 @@ class OrderItemRepositoryTest {
 
     @Test
     void findTopProducts_excludesOrdersOutsideRange() {
-        // Feb order has one laptop — in the full range it should NOT inflate Jan totals
+        // Feb order has one laptop - in the full range it should NOT inflate Jan totals
         List<TopProductProjection> rows = repo.findTopProducts(JAN_01, JAN_31, PageRequest.of(0, 10));
 
         assertThat(rows.get(0).getRevenue()).isEqualByComparingTo("1999.98");
@@ -92,7 +92,7 @@ class OrderItemRepositoryTest {
         assertThat(rows).hasSize(2); // Electronics, Books
         CategoryProjection electronics = rows.get(0);
         assertThat(electronics.getCategory()).isEqualTo("Electronics");
-        assertThat(electronics.getItemCount()).isEqualTo(3L); // laptop×2 + phone×1
+        assertThat(electronics.getItemCount()).isEqualTo(3L); // laptop*2 + phone*1
     }
 
     // -------------------------------------------------------------------------

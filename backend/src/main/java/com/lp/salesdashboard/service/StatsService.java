@@ -77,7 +77,7 @@ public class StatsService {
 
     /**
      * Returns revenue aggregated at a granularity that fits the range:
-     * ≤ 31 days → daily, ≤ 90 days → weekly (Monday-anchored), otherwise → monthly (YYYY-MM).
+     * <= 31 days -> daily, <= 90 days -> weekly (Monday-anchored), otherwise -> monthly (YYYY-MM).
      */
     public List<RevenuePointDto> getRevenueOverTime(LocalDate from, LocalDate to) {
         List<RevenuePointDto> daily = salesOrderRepository.findDailyRevenue(from, to);

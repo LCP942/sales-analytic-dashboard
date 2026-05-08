@@ -35,7 +35,7 @@ class SalesOrderMaintenanceRepositoryTest {
         em.flush();
     }
 
-    // ── findMaxSystemOrderDate ────────────────────────────────────────────────
+    // 
 
     @Test
     void findMaxSystemOrderDate_returnsLatestSystemOrder() {
@@ -70,12 +70,12 @@ class SalesOrderMaintenanceRepositoryTest {
         assertThat(repo.findMaxSystemOrderDate()).isEqualTo(Optional.empty());
     }
 
-    // ── deleteOldSystemOrders ─────────────────────────────────────────────────
+    // 
 
     @Test
     void deleteOldSystemOrders_removesSystemOrdersBeforeCutoff() {
-        persistOrder(LocalDate.of(2020, 1, 1), false, systemCustomer); // old system → deleted
-        persistOrder(LocalDate.of(2025, 1, 1), false, systemCustomer); // recent system → kept
+        persistOrder(LocalDate.of(2020, 1, 1), false, systemCustomer); // old system -> deleted
+        persistOrder(LocalDate.of(2025, 1, 1), false, systemCustomer); // recent system -> kept
         em.flush();
 
         repo.deleteOldSystemOrderItems(LocalDate.of(2023, 1, 1));
@@ -87,7 +87,7 @@ class SalesOrderMaintenanceRepositoryTest {
 
     @Test
     void deleteOldSystemOrders_doesNotRemoveUserCreatedOrders() {
-        persistOrder(LocalDate.of(2020, 1, 1), true, userCustomer); // old but user-created → kept
+        persistOrder(LocalDate.of(2020, 1, 1), true, userCustomer); // old but user-created -> kept
         em.flush();
 
         repo.deleteOldSystemOrderItems(LocalDate.of(2023, 1, 1));
@@ -100,7 +100,7 @@ class SalesOrderMaintenanceRepositoryTest {
     @Test
     void deleteOldSystemOrders_doesNotRemoveOrdersOnCutoffDate() {
         LocalDate cutoff = LocalDate.of(2023, 1, 1);
-        persistOrder(cutoff, false, systemCustomer); // exactly on cutoff boundary → kept
+        persistOrder(cutoff, false, systemCustomer); // exactly on cutoff boundary -> kept
         em.flush();
 
         repo.deleteOldSystemOrderItems(cutoff);
@@ -124,7 +124,7 @@ class SalesOrderMaintenanceRepositoryTest {
         assertThat(repo.count()).isEqualTo(0);
     }
 
-    // ── helpers ───────────────────────────────────────────────────────────────
+    // 
 
     private void persistOrder(LocalDate date, boolean userCreated, Customer c) {
         SalesOrder o = new SalesOrder();

@@ -55,7 +55,7 @@ public class DataMaintenanceService {
         LocalDate today     = LocalDate.now();
         LocalDate windowEnd = today.plusYears(windowYears);
 
-        // Early exit — most hourly runs will stop here
+        // Early exit - most hourly runs will stop here
         Optional<LocalDate> maxDate = salesOrderRepository.findMaxSystemOrderDate();
         if (maxDate.isPresent() && !maxDate.get().isBefore(windowEnd)) {
             return;
@@ -145,7 +145,7 @@ public class DataMaintenanceService {
     }
 
     private int pickDailyOrderCount() {
-        // 10% → 0 orders, 40% → 1, 40% → 2, 10% → 3  (avg 1.5/day)
+        // 10% -> 0 orders, 40% -> 1, 40% -> 2, 10% -> 3  (avg 1.5/day)
         double r = random.nextDouble();
         if (r < 0.10) return 0;
         if (r < 0.50) return 1;
