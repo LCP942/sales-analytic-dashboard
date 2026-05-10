@@ -98,7 +98,7 @@ Requires a **MySQL 8.4** database — the schema is created automatically on fir
 | `DATABASE_USER` | yes | Database username |
 | `DATABASE_PASSWORD` | yes | Database password |
 | `CORS_ORIGINS` | yes | Comma-separated list of allowed frontend origins |
-| `SPRING_PROFILES_ACTIVE` | no | Set to `prod` to enable JSON structured logging (default: human-readable text) |
+| `SPRING_PROFILES_ACTIVE` | no | `prod` — JSON structured logging + rolling log files under `/app/logs/`. Omit or set to `default` for human-readable text on stdout only. |
 
 ### Frontend
 

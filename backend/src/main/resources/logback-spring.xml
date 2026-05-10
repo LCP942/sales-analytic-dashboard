@@ -18,9 +18,22 @@
     </root>
   </springProfile>
 
-  <!-- Prod: structured JSON on stdout (collected by Coolify/Docker) -->
+  <!-- Prod: structured JSON on stdout + rolling file -->
   <springProfile name="prod">
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <customFields>{"app":"sales-dashboard"}</customFields>
+      </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <file>/app/logs/app.log</file>
+      <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+        <fileNamePattern>/app/logs/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+        <maxFileSize>100MB</maxFileSize>
+        <totalSizeCap>1GB</totalSizeCap>
+        <maxHistory>3650</maxHistory>
+      </rollingPolicy>
       <encoder class="net.logstash.logback.encoder.LogstashEncoder">
         <customFields>{"app":"sales-dashboard"}</customFields>
       </encoder>
@@ -32,6 +45,7 @@
 
     <root level="INFO">
       <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
     </root>
   </springProfile>
 
