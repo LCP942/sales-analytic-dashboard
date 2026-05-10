@@ -1,5 +1,7 @@
 package com.lp.salesdashboard.config;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,20 +11,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
 
-    private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
+    private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(10))
+            .build();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!"POST".equals(request.getMethod())) return true;
 
         String ip = clientIp(request);
-        Bucket bucket = buckets.computeIfAbsent(ip, k -> Bucket.builder()
+        Bucket bucket = buckets.get(ip, k -> Bucket.builder()
                 .addLimit(Bandwidth.builder()
                         .capacity(20)
                         .refillIntervally(20, Duration.ofMinutes(1))
