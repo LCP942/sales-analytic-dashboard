@@ -12,3 +12,4 @@
 !nginx.conf
 !vercel.json
 !tailwind.config.js
+!.env.example

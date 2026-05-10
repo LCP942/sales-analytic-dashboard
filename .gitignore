@@ -28,6 +28,7 @@
 !frontend/Dockerfile
 !frontend/nginx.conf
 !frontend/vercel.json
+!frontend/.env.example
 
 # Docker init scripts
 !docker/
