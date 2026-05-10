@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { combineLatest, switchMap } from 'rxjs';
+import { combineLatest, switchMap, of } from 'rxjs';
 import { FilterService } from '../core/services/filter.service';
 import { DashboardService } from './services/dashboard.service';
 import { KpiMetrics, DataPoint, TopProduct, CategoryBreakdown, WeekdayStat } from '../core/models/stats.models';
@@ -40,21 +40,28 @@ export class DashboardComponent {
   weekdayStats = signal<WeekdayStat[]>([]);
   isInitialLoad = signal(true);
 
+  isWeekdayRelevant = computed(() => {
+    const from = new Date(this.filter.from());
+    const to   = new Date(this.filter.to());
+    return Math.round((to.getTime() - from.getTime()) / 86_400_000) + 1 >= 7;
+  });
+
   constructor() {
     combineLatest([
       toObservable(this.filter.from),
       toObservable(this.filter.to),
     ])
       .pipe(
-        switchMap(([from, to]) =>
-          combineLatest([
+        switchMap(([from, to]) => {
+          const days = Math.round((new Date(to).getTime() - new Date(from).getTime()) / 86_400_000) + 1;
+          return combineLatest([
             this.stats.getKpis(from, to),
             this.stats.getRevenueOverTime(from, to),
             this.stats.getTopProducts(from, to),
             this.stats.getOrdersByCategory(from, to),
-            this.stats.getOrdersByWeekday(from, to),
-          ])
-        ),
+            days >= 7 ? this.stats.getOrdersByWeekday(from, to) : of([]),
+          ]);
+        }),
         takeUntilDestroyed()
       )
       .subscribe({

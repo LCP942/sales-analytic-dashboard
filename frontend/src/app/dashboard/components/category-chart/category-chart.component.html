@@ -1,7 +1,14 @@
 <div class="relative">
-  @if (data().length === 0) {
-    <p class="text-center text-gray-400 py-12 m-0">No data for this period</p>
-  } @else {
-    <div echarts [options]="chartOption()" class="h-[280px]" (chartClick)="onSliceClick($event)"></div>
-  }
+  <div class="grid transition-[grid-template-rows] duration-300 ease-out"
+       [style.gridTemplateRows]="data().length > 0 ? '1fr' : '0fr'">
+    <div class="overflow-hidden">
+      <div echarts [options]="chartOption()" class="h-[280px]" (chartClick)="onSliceClick($event)"></div>
+    </div>
+  </div>
+  <div class="grid transition-[grid-template-rows] duration-300 ease-out"
+       [style.gridTemplateRows]="data().length > 0 ? '0fr' : '1fr'">
+    <div class="overflow-hidden">
+      <p class="text-center text-gray-400 py-12 m-0">No data for this period</p>
+    </div>
+  </div>
 </div>
