@@ -37,17 +37,37 @@ The frontend renders interactive chart components driven by a reactive date-rang
 
 ---
 
-## Quick start (local)
+## Quick start
 
-**Prerequisites:** Docker Desktop
+### Local — full stack
+
+**Prerequisites:** Docker Desktop — that's it.
 
 ```bash
 docker compose up --build
 ```
 
-Once all three containers are healthy, open [http://localhost:4200](http://localhost:4200).
+That single command pulls every dependency, seeds the database, and starts all three services.
+Once the containers are healthy, open [http://localhost:4200](http://localhost:4200) and the app is ready.
 
-The app seeds its own data on first boot — no manual SQL import needed.
+### Backend only (external frontend)
+
+Use this compose file when the frontend is hosted on an external platform (Vercel, Netlify, etc.)
+and only the backend + database need to run in containers.
+
+**Prerequisites:** Docker Desktop + a `.env` file (or environment variables set in your host):
+
+| Variable | Description |
+|---|---|
+| `MYSQL_ROOT_PASSWORD` | MySQL root password |
+| `MYSQL_DATABASE` | Database name |
+| `MYSQL_USER` | Database username |
+| `MYSQL_PASSWORD` | Database password |
+| `CORS_ORIGINS` | Allowed frontend origin(s), e.g. `https://your-app.vercel.app` |
+
+```bash
+docker compose -f docker-compose.coolify.yml up --build
+```
 
 ### Run tests
 
@@ -104,15 +124,15 @@ Requires a **MySQL 8.4** database — the schema is created automatically on fir
 
 A static Angular SPA built with `npm run build`.
 
-Set the backend URL before building:
+The backend URL is injected at build time via the `NG_APP_API_URL` environment variable
+(powered by [`@ngx-env/builder`](https://github.com/chihab/ngx-env)).
+No source file needs to be edited — set the variable in your hosting platform's build settings:
 
-```ts
-// frontend/src/environments/environment.prod.ts
-export const environment = {
-  production: true,
-  apiBaseUrl: 'https://your-backend-url/api',
-};
-```
+| Variable | Example value |
+|---|---|
+| `NG_APP_API_URL` | `https://your-backend-url/api` |
+
+The build will fail immediately if `NG_APP_API_URL` is not set, so misconfiguration is caught early.
 
 Requires a catch-all rewrite so all paths serve `index.html`. Example for nginx:
 
@@ -121,6 +141,8 @@ location / {
   try_files $uri $uri/ /index.html;
 }
 ```
+
+On Vercel, this rewrite is already configured in `frontend/vercel.json`.
 
 ---
 
