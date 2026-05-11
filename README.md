@@ -66,7 +66,7 @@ and only the backend + database need to run in containers.
 | `CORS_ORIGINS` | Allowed frontend origin(s), e.g. `https://your-app.vercel.app` |
 
 ```bash
-docker compose -f docker-compose.coolify.yml up --build
+docker compose -f docker-compose.prod.yml up --build
 ```
 
 ### Run tests
