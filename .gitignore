@@ -30,7 +30,10 @@
 !frontend/vercel.json
 !frontend/.env.example
 
-# Docker init scripts
+# Docker
 !docker/
+!docker/mysql/
+!docker/mysql/Dockerfile
+!docker/mysql/my.cnf
 !docker/init/
 !docker/init/**

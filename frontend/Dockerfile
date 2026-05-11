@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+ARG NG_APP_API_URL=http://localhost:8080/api
+ENV NG_APP_API_URL=$NG_APP_API_URL
 RUN npx ng build --configuration production
 
 # Stage 2 — serve
