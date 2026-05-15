@@ -29,8 +29,8 @@ class SalesOrderMaintenanceRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        systemCustomer = em.persist(customer("System", false));
-        userCustomer   = em.persist(customer("User",   true));
+        systemCustomer = em.persist(customer("System", null));
+        userCustomer   = em.persist(customer("User",   "1.2.3.4"));
         product        = em.persist(product());
         em.flush();
     }
@@ -39,8 +39,8 @@ class SalesOrderMaintenanceRepositoryTest {
 
     @Test
     void findMaxSystemOrderDate_returnsLatestSystemOrder() {
-        persistOrder(LocalDate.of(2022, 1, 1), false, systemCustomer);
-        persistOrder(LocalDate.of(2025, 6, 1), false, systemCustomer); // latest system
+        persistOrder(LocalDate.of(2022, 1, 1), null,      systemCustomer);
+        persistOrder(LocalDate.of(2025, 6, 1), null,      systemCustomer); // latest system
         em.flush();
 
         assertThat(repo.findMaxSystemOrderDate())
@@ -49,8 +49,8 @@ class SalesOrderMaintenanceRepositoryTest {
 
     @Test
     void findMaxSystemOrderDate_ignoresUserCreatedOrders() {
-        persistOrder(LocalDate.of(2024, 1, 1), false, systemCustomer); // system
-        persistOrder(LocalDate.of(2030, 1, 1), true,  userCustomer);   // user, later date
+        persistOrder(LocalDate.of(2024, 1, 1), null,      systemCustomer); // system
+        persistOrder(LocalDate.of(2030, 1, 1), "1.2.3.4", userCustomer);  // user, later date
         em.flush();
 
         assertThat(repo.findMaxSystemOrderDate())
@@ -59,7 +59,7 @@ class SalesOrderMaintenanceRepositoryTest {
 
     @Test
     void findMaxSystemOrderDate_returnsEmpty_whenNoSystemOrders() {
-        persistOrder(LocalDate.of(2030, 1, 1), true, userCustomer);
+        persistOrder(LocalDate.of(2030, 1, 1), "1.2.3.4", userCustomer);
         em.flush();
 
         assertThat(repo.findMaxSystemOrderDate()).isEmpty();
@@ -74,8 +74,8 @@ class SalesOrderMaintenanceRepositoryTest {
 
     @Test
     void deleteOldSystemOrders_removesSystemOrdersBeforeCutoff() {
-        persistOrder(LocalDate.of(2020, 1, 1), false, systemCustomer); // old system -> deleted
-        persistOrder(LocalDate.of(2025, 1, 1), false, systemCustomer); // recent system -> kept
+        persistOrder(LocalDate.of(2020, 1, 1), null, systemCustomer); // old system -> deleted
+        persistOrder(LocalDate.of(2025, 1, 1), null, systemCustomer); // recent system -> kept
         em.flush();
 
         repo.deleteOldSystemOrderItems(LocalDate.of(2023, 1, 1));
@@ -87,7 +87,7 @@ class SalesOrderMaintenanceRepositoryTest {
 
     @Test
     void deleteOldSystemOrders_doesNotRemoveUserCreatedOrders() {
-        persistOrder(LocalDate.of(2020, 1, 1), true, userCustomer); // old but user-created -> kept
+        persistOrder(LocalDate.of(2020, 1, 1), "1.2.3.4", userCustomer); // old but user-created -> kept
         em.flush();
 
         repo.deleteOldSystemOrderItems(LocalDate.of(2023, 1, 1));
@@ -100,7 +100,7 @@ class SalesOrderMaintenanceRepositoryTest {
     @Test
     void deleteOldSystemOrders_doesNotRemoveOrdersOnCutoffDate() {
         LocalDate cutoff = LocalDate.of(2023, 1, 1);
-        persistOrder(cutoff, false, systemCustomer); // exactly on cutoff boundary -> kept
+        persistOrder(cutoff, null, systemCustomer); // exactly on cutoff boundary -> kept
         em.flush();
 
         repo.deleteOldSystemOrderItems(cutoff);
@@ -112,7 +112,7 @@ class SalesOrderMaintenanceRepositoryTest {
 
     @Test
     void deleteOldSystemOrders_alsoDeletesTheirItems() {
-        var order = persistOrderWithItem(LocalDate.of(2020, 1, 1), false, systemCustomer);
+        var order = persistOrderWithItem(LocalDate.of(2020, 1, 1), null, systemCustomer);
         em.flush();
 
         assertThat(em.find(SalesOrder.class, order.getId())).isNotNull();
@@ -126,23 +126,23 @@ class SalesOrderMaintenanceRepositoryTest {
 
     // 
 
-    private void persistOrder(LocalDate date, boolean userCreated, Customer c) {
+    private void persistOrder(LocalDate date, String creatorIp, Customer c) {
         SalesOrder o = new SalesOrder();
         o.setOrderDate(date);
         o.setTotalAmount(new BigDecimal("100.00"));
         o.setCustomer(c);
         o.setStatus(OrderStatus.DELIVERED);
-        o.setUserCreated(userCreated);
+        o.setCreatorIp(creatorIp);
         em.persist(o);
     }
 
-    private SalesOrder persistOrderWithItem(LocalDate date, boolean userCreated, Customer c) {
+    private SalesOrder persistOrderWithItem(LocalDate date, String creatorIp, Customer c) {
         SalesOrder o = new SalesOrder();
         o.setOrderDate(date);
         o.setTotalAmount(new BigDecimal("100.00"));
         o.setCustomer(c);
         o.setStatus(OrderStatus.DELIVERED);
-        o.setUserCreated(userCreated);
+        o.setCreatorIp(creatorIp);
         em.persist(o);
 
         OrderItem item = new OrderItem();
@@ -155,12 +155,12 @@ class SalesOrderMaintenanceRepositoryTest {
         return o;
     }
 
-    private static Customer customer(String name, boolean userCreated) {
+    private static Customer customer(String name, String creatorIp) {
         Customer c = new Customer();
         c.setName(name);
         c.setEmail(name.toLowerCase() + "@test.com");
         c.setCity("Paris");
-        c.setUserCreated(userCreated);
+        c.setCreatorIp(creatorIp);
         return c;
     }
 

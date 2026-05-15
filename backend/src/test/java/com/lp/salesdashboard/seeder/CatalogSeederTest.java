@@ -80,7 +80,7 @@ class CatalogSeederTest {
         seeder.run(null);
 
         verify(customerRepository).saveAll(customerCaptor.capture());
-        assertThat(customerCaptor.getValue()).allMatch(c -> !c.isUserCreated());
+        assertThat(customerCaptor.getValue()).allMatch(c -> c.getCreatorIp() == null);
     }
 
     @Test

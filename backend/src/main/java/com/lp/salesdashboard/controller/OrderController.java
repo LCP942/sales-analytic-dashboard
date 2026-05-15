@@ -7,6 +7,8 @@ import com.lp.salesdashboard.entity.SalesOrder;
 import com.lp.salesdashboard.projection.CustomerSummaryProjection;
 import com.lp.salesdashboard.service.CustomerService;
 import com.lp.salesdashboard.service.OrderService;
+import com.lp.salesdashboard.util.IpUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,28 +43,32 @@ public class OrderController {
             @RequestParam(required = false) BigDecimal maxAmount,
             @RequestParam(defaultValue = "") String categories,
             @RequestParam(defaultValue = "") String product,
-            @PageableDefault(size = 10, sort = "orderDate", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 10, sort = "orderDate", direction = Sort.Direction.DESC) Pageable pageable,
+            HttpServletRequest request) {
+        String ip = IpUtils.clientIp(request);
         return orderService.getOrders(from, to, customer, parseStatuses(statuses), minAmount, maxAmount,
-                parseCategories(categories), product, pageable)
+                parseCategories(categories), product, ip, pageable)
                 .map(OrderController::toSummary);
     }
 
     @GetMapping("/{id}")
-    public OrderDetailDto getOrder(@PathVariable Long id) {
-        return toDetail(orderService.getOrder(id));
+    public OrderDetailDto getOrder(@PathVariable Long id, HttpServletRequest request) {
+        String ip = IpUtils.clientIp(request);
+        return toDetail(orderService.getOrder(id, ip), ip);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderDetailDto createOrder(@Valid @RequestBody OrderCreateRequest req) {
-        return toDetail(orderService.createOrder(req));
+    public OrderDetailDto createOrder(@Valid @RequestBody OrderCreateRequest req, HttpServletRequest request) {
+        String ip = IpUtils.clientIp(request);
+        return toDetail(orderService.createOrder(req, ip), ip);
     }
 
-    private OrderDetailDto toDetail(SalesOrder order) {
+    private OrderDetailDto toDetail(SalesOrder order, String ip) {
         List<OrderItemDto> items = order.getItems().stream()
                 .map(OrderController::toOrderItemDto)
                 .toList();
-        CustomerDto customerDto = toCustomerDto(customerService.getCustomer(order.getCustomer().getId()));
+        CustomerDto customerDto = toCustomerDto(customerService.getCustomer(order.getCustomer().getId(), ip));
         return new OrderDetailDto(
                 order.getId(), order.getOrderDate(), order.getTotalAmount(), order.getStatus(),
                 customerDto, items.size(), items,

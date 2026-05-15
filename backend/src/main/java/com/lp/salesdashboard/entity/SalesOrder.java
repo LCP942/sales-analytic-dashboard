@@ -45,8 +45,8 @@ public class SalesOrder {
     private BigDecimal shippingAmount = BigDecimal.ZERO;
 
     @Setter
-    @Column(name = "user_created", nullable = false)
-    private boolean userCreated = false;
+    @Column(name = "creator_ip", length = 45)
+    private String creatorIp;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();

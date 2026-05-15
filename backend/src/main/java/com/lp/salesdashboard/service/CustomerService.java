@@ -23,24 +23,24 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
 
     @Transactional(readOnly = true)
-    public Page<CustomerSummaryProjection> getCustomers(String name, Pageable pageable) {
+    public Page<CustomerSummaryProjection> getCustomers(String name, String ip, Pageable pageable) {
         String search = (name == null || name.isBlank()) ? null : name;
-        return customerRepository.findAllWithOrderStats(search, pageable);
+        return customerRepository.findAllWithOrderStats(search, ip, pageable);
     }
 
     @Transactional(readOnly = true)
-    public CustomerSummaryProjection getCustomer(Long id) {
-        return customerRepository.findByIdWithOrderStats(id)
+    public CustomerSummaryProjection getCustomer(Long id, String ip) {
+        return customerRepository.findByIdWithOrderStats(id, ip)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found: " + id));
     }
 
     @Transactional
-    public Customer createCustomer(CustomerCreateRequest req) {
+    public Customer createCustomer(CustomerCreateRequest req, String ip) {
         var c = new Customer();
         c.setName(req.name().trim());
         c.setEmail(req.email().trim());
         c.setCity(req.city().trim());
-        c.setUserCreated(true);
+        c.setCreatorIp(ip);
         Customer saved = customerRepository.save(c);
         log.info("Customer created: id={}, name='{}'", saved.getId(), saved.getName());
         return saved;

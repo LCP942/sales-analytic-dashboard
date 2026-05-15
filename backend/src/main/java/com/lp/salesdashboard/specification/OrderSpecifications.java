@@ -76,6 +76,14 @@ public class OrderSpecifications {
         };
     }
 
+    /** Restricts results to seed orders (creatorIp IS NULL) and orders created by the given IP. */
+    public static Specification<SalesOrder> visibleToIp(String ip) {
+        return (root, query, cb) -> cb.or(
+            cb.isNull(root.get("creatorIp")),
+            cb.equal(root.get("creatorIp"), ip)
+        );
+    }
+
     /**
      * Correlated EXISTS subquery: keeps orders that contain at least one item
      * whose product name matches the given pattern (case-insensitive LIKE).

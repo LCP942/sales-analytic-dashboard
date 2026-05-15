@@ -2,6 +2,7 @@ package com.lp.salesdashboard.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.lp.salesdashboard.util.IpUtils;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!"POST".equals(request.getMethod())) return true;
 
-        String ip = clientIp(request);
+        String ip = IpUtils.clientIp(request);
         Bucket bucket = buckets.get(ip, k -> Bucket.builder()
                 .addLimit(Bandwidth.builder()
                         .capacity(20)
@@ -41,8 +42,4 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         return false;
     }
 
-    private static String clientIp(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        return forwarded != null ? forwarded.split(",")[0].trim() : request.getRemoteAddr();
-    }
 }

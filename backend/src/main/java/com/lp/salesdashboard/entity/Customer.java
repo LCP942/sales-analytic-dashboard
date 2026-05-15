@@ -25,6 +25,6 @@ public class Customer {
     @Column(nullable = false, length = 100)
     private String city;
 
-    @Column(name = "user_created", nullable = false)
-    private boolean userCreated = false;
+    @Column(name = "creator_ip", length = 45)
+    private String creatorIp;
 }

@@ -36,7 +36,7 @@ class CustomerControllerTest {
 
     @Test
     void createCustomer_withValidBody_returns201() throws Exception {
-        given(service.createCustomer(any())).willReturn(customerEntity());
+        given(service.createCustomer(any(), any())).willReturn(customerEntity());
 
         mvc.perform(post("/api/customers")
                         .contentType(MediaType.APPLICATION_JSON)

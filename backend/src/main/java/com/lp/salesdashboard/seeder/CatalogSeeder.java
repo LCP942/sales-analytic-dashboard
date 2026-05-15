@@ -84,7 +84,6 @@ public class CatalogSeeder implements ApplicationRunner {
         c.setName(name);
         c.setEmail(email);
         c.setCity(city);
-        c.setUserCreated(false);
         return c;
     }
 

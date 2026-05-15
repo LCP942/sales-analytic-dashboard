@@ -5,6 +5,8 @@ import com.lp.salesdashboard.dto.CustomerDto;
 import com.lp.salesdashboard.entity.Customer;
 import com.lp.salesdashboard.projection.CustomerSummaryProjection;
 import com.lp.salesdashboard.service.CustomerService;
+import com.lp.salesdashboard.util.IpUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,19 +28,20 @@ public class CustomerController {
     @GetMapping
     public Page<CustomerDto> getCustomers(
             @RequestParam(defaultValue = "") String name,
-            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-        return customerService.getCustomers(name, pageable).map(CustomerController::toDto);
+            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+            HttpServletRequest request) {
+        return customerService.getCustomers(name, IpUtils.clientIp(request), pageable).map(CustomerController::toDto);
     }
 
     @GetMapping("/{id}")
-    public CustomerDto getCustomer(@PathVariable Long id) {
-        return toDto(customerService.getCustomer(id));
+    public CustomerDto getCustomer(@PathVariable Long id, HttpServletRequest request) {
+        return toDto(customerService.getCustomer(id, IpUtils.clientIp(request)));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerDto createCustomer(@Valid @RequestBody CustomerCreateRequest req) {
-        Customer c = customerService.createCustomer(req);
+    public CustomerDto createCustomer(@Valid @RequestBody CustomerCreateRequest req, HttpServletRequest request) {
+        Customer c = customerService.createCustomer(req, IpUtils.clientIp(request));
         return new CustomerDto(c.getId(), c.getName(), c.getEmail(), c.getCity(), 0, BigDecimal.ZERO);
     }
 

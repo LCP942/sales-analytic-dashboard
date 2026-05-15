@@ -103,7 +103,7 @@ class OrderControllerTest {
     void getOrders_returns200WithPageContent() throws Exception {
         given(orderService.getOrders(
                 any(), any(), anyString(), anyList(),
-                any(), any(), anyList(), anyString(), any(Pageable.class)))
+                any(), any(), anyList(), anyString(), anyString(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(orderEntity())));
 
         mvc.perform(get("/api/orders").param("from", FROM).param("to", TO))
@@ -118,7 +118,7 @@ class OrderControllerTest {
         given(orderService.getOrders(
                 any(), any(), anyString(),
                 eq(List.of(OrderStatus.PENDING, OrderStatus.SHIPPED)),
-                any(), any(), anyList(), anyString(), any(Pageable.class)))
+                any(), any(), anyList(), anyString(), anyString(), any(Pageable.class)))
                 .willReturn(Page.empty());
 
         mvc.perform(get("/api/orders")
@@ -140,7 +140,7 @@ class OrderControllerTest {
     void getOrders_missingFrom_returns200() throws Exception {
         given(orderService.getOrders(
                 isNull(), any(), anyString(), anyList(),
-                any(), any(), anyList(), anyString(), any(Pageable.class)))
+                any(), any(), anyList(), anyString(), anyString(), any(Pageable.class)))
                 .willReturn(Page.empty());
 
         mvc.perform(get("/api/orders").param("to", TO))
@@ -151,7 +151,7 @@ class OrderControllerTest {
     void getOrders_missingTo_returns200() throws Exception {
         given(orderService.getOrders(
                 any(), isNull(), anyString(), anyList(),
-                any(), any(), anyList(), anyString(), any(Pageable.class)))
+                any(), any(), anyList(), anyString(), anyString(), any(Pageable.class)))
                 .willReturn(Page.empty());
 
         mvc.perform(get("/api/orders").param("from", FROM))
@@ -162,7 +162,7 @@ class OrderControllerTest {
     void getOrders_missingBothDates_returns200() throws Exception {
         given(orderService.getOrders(
                 isNull(), isNull(), anyString(), anyList(),
-                any(), any(), anyList(), anyString(), any(Pageable.class)))
+                any(), any(), anyList(), anyString(), anyString(), any(Pageable.class)))
                 .willReturn(Page.empty());
 
         mvc.perform(get("/api/orders"))
@@ -176,8 +176,8 @@ class OrderControllerTest {
     @Test
     void getOrder_returns200WithDetail() throws Exception {
         CustomerSummaryProjection stats = customerStats();
-        given(orderService.getOrder(1L)).willReturn(orderEntity());
-        given(customerService.getCustomer(any())).willReturn(stats);
+        given(orderService.getOrder(eq(1L), anyString())).willReturn(orderEntity());
+        given(customerService.getCustomer(any(Long.class), anyString())).willReturn(stats);
 
         mvc.perform(get("/api/orders/1"))
                 .andExpect(status().isOk())
@@ -190,7 +190,7 @@ class OrderControllerTest {
 
     @Test
     void getOrder_notFound_returns404() throws Exception {
-        given(orderService.getOrder(999L))
+        given(orderService.getOrder(eq(999L), anyString()))
                 .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: 999"));
 
         mvc.perform(get("/api/orders/999"))

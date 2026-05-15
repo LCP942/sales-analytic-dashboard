@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,7 +55,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void notFound_logsWarnAndReturns404() throws Exception {
-        given(customerService.getCustomer(99L))
+        given(customerService.getCustomer(eq(99L), anyString()))
                 .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found: 99"));
 
         mvc.perform(get("/api/customers/99"))
@@ -99,7 +100,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void unexpectedException_logsErrorAndReturns500WithGenericMessage() throws Exception {
-        given(customerService.getCustomers(anyString(), any(Pageable.class)))
+        given(customerService.getCustomers(anyString(), anyString(), any(Pageable.class)))
                 .willThrow(new RuntimeException("Database connection lost"));
 
         mvc.perform(get("/api/customers"))

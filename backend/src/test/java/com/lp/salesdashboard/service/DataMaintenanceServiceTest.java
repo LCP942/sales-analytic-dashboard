@@ -70,7 +70,7 @@ class DataMaintenanceServiceTest {
     @Test
     void ensureDataWindow_prunesWithCorrectCutoffDate() {
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
@@ -83,7 +83,7 @@ class DataMaintenanceServiceTest {
     @Test
     void ensureDataWindow_prunesBeforeGenerating() {
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         var ordered = inOrder(salesOrderRepository);
@@ -100,7 +100,7 @@ class DataMaintenanceServiceTest {
     void ensureDataWindow_generatesOrders_whenMaxDateBeforeWindowEnd() {
         given(salesOrderRepository.findMaxSystemOrderDate())
             .willReturn(Optional.of(LocalDate.now().plusMonths(6)));
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
@@ -111,7 +111,7 @@ class DataMaintenanceServiceTest {
     @Test
     void ensureDataWindow_doesNotGenerate_whenCatalogIsEmpty() {
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of());
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of());
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of());
 
         service.ensureDataWindow();
@@ -122,7 +122,7 @@ class DataMaintenanceServiceTest {
     @Test
     void ensureDataWindow_generatesFromWindowStart_whenNoDataExists() {
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
@@ -139,7 +139,7 @@ class DataMaintenanceServiceTest {
     @Test
     void ensureDataWindow_generatesUpToWindowEnd() {
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
@@ -158,19 +158,19 @@ class DataMaintenanceServiceTest {
     @Test
     void generatedOrders_areNotUserCreated() {
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
 
         verify(salesOrderRepository, atLeastOnce()).saveAll(batchCaptor.capture());
-        assertThat(allCaptured()).allMatch(o -> !o.isUserCreated());
+        assertThat(allCaptured()).allMatch(o -> o.getCreatorIp() == null);
     }
 
     @Test
     void generatedOrders_eachHaveAtLeastOneItem() {
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
@@ -182,7 +182,7 @@ class DataMaintenanceServiceTest {
     @Test
     void generatedOrders_totalAmountEqualsItemsTotalPlusShipping() {
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
@@ -203,13 +203,13 @@ class DataMaintenanceServiceTest {
     void generatedOrders_referencesOnlySystemCustomers() {
         Customer system = systemCustomer();
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(system));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(system));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
 
         verify(salesOrderRepository, atLeastOnce()).saveAll(batchCaptor.capture());
-        assertThat(allCaptured()).allMatch(o -> !o.getCustomer().isUserCreated());
+        assertThat(allCaptured()).allMatch(o -> o.getCustomer().getCreatorIp() == null);
     }
 
     // 
@@ -219,7 +219,7 @@ class DataMaintenanceServiceTest {
         // maxDate = today -> only future orders are generated
         given(salesOrderRepository.findMaxSystemOrderDate())
             .willReturn(Optional.of(LocalDate.now()));
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
@@ -237,7 +237,7 @@ class DataMaintenanceServiceTest {
     void recentOrders_doNotHaveDeliveredStatus() {
         // Generate full window from scratch so we get a large sample of dates
         given(salesOrderRepository.findMaxSystemOrderDate()).willReturn(Optional.empty());
-        given(customerRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemCustomer()));
+        given(customerRepository.findAllByCreatorIpIsNull()).willReturn(List.of(systemCustomer()));
         given(productRepository.findAllByUserCreatedFalse()).willReturn(List.of(systemProduct()));
 
         service.ensureDataWindow();
@@ -269,7 +269,6 @@ class DataMaintenanceServiceTest {
         c.setName("System Customer");
         c.setEmail("system@test.com");
         c.setCity("Paris");
-        c.setUserCreated(false);
         return c;
     }
 

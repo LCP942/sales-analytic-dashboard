@@ -46,14 +46,14 @@ class OrderServiceTest {
                 99L, LocalDate.now(), OrderStatus.PENDING, "Credit Card", BigDecimal.ZERO,
                 List.of(new OrderItemRequest(1L, 1, BigDecimal.TEN)));
 
-        assertThatThrownBy(() -> service.createOrder(req))
+        assertThatThrownBy(() -> service.createOrder(req, "127.0.0.1"))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
                         .isEqualTo(HttpStatus.BAD_REQUEST));
     }
 
     @Test
-    void createOrder_setsUserCreatedTrue_onSavedOrder() {
+    void createOrder_setsCreatorIp_onSavedOrder() {
         Customer customer = new Customer();
         customer.setName("Alice");
         customer.setEmail("alice@test.com");
@@ -73,7 +73,7 @@ class OrderServiceTest {
         saved.setPaymentMethod("Credit Card");
         saved.setCustomer(customer);
         saved.setStatus(OrderStatus.PENDING);
-        saved.setUserCreated(true);
+        saved.setCreatorIp("127.0.0.1");
         saved.getItems().addAll(new ArrayList<>());
         given(orderRepo.save(any(SalesOrder.class))).willReturn(saved);
         given(orderRepo.findWithItemsById(any())).willReturn(Optional.of(saved));
@@ -82,8 +82,8 @@ class OrderServiceTest {
                 1L, LocalDate.now(), OrderStatus.PENDING, "Credit Card", BigDecimal.ZERO,
                 List.of(new OrderItemRequest(1L, 1, BigDecimal.TEN)));
 
-        service.createOrder(req);
+        service.createOrder(req, "127.0.0.1");
 
-        verify(orderRepo).save(argThat(SalesOrder::isUserCreated));
+        verify(orderRepo).save(argThat(o -> o.getCreatorIp() != null));
     }
 }

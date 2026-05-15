@@ -35,7 +35,7 @@ public class OrderService {
             String customer, List<OrderStatus> statuses,
             BigDecimal minAmount, BigDecimal maxAmount,
             List<String> categories, String product,
-            Pageable pageable) {
+            String ip, Pageable pageable) {
 
         Specification<SalesOrder> spec = Specification
                 .where(OrderSpecifications.betweenDates(from, to))
@@ -43,18 +43,23 @@ public class OrderService {
                 .and(OrderSpecifications.statusIn(statuses))
                 .and(OrderSpecifications.amountBetween(minAmount, maxAmount))
                 .and(OrderSpecifications.categoryIn(categories))
-                .and(OrderSpecifications.productContains(product));
+                .and(OrderSpecifications.productContains(product))
+                .and(OrderSpecifications.visibleToIp(ip));
 
         return salesOrderRepository.findAll(spec, pageable);
     }
 
-    public SalesOrder getOrder(Long id) {
-        return salesOrderRepository.findWithItemsById(id)
+    public SalesOrder getOrder(Long id, String ip) {
+        SalesOrder order = salesOrderRepository.findWithItemsById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: " + id));
+        if (order.getCreatorIp() != null && !order.getCreatorIp().equals(ip)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: " + id);
+        }
+        return order;
     }
 
     @Transactional
-    public SalesOrder createOrder(OrderCreateRequest req) {
+    public SalesOrder createOrder(OrderCreateRequest req, String ip) {
         Customer customer = customerService.findCustomerById(req.customerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Customer not found: " + req.customerId()));
@@ -72,7 +77,7 @@ public class OrderService {
                 ? req.paymentMethod() : "Credit Card");
         order.setShippingAmount(shipping);
         order.setTotalAmount(itemsTotal.add(shipping));
-        order.setUserCreated(true);
+        order.setCreatorIp(ip);
 
         for (OrderItemRequest itemReq : req.items()) {
             OrderItem item = new OrderItem();
@@ -88,6 +93,6 @@ public class OrderService {
         SalesOrder saved = salesOrderRepository.save(order);
         log.info("Order created: id={}, customerId={}, items={}, total={}",
                 saved.getId(), req.customerId(), req.items().size(), saved.getTotalAmount());
-        return getOrder(saved.getId());
+        return getOrder(saved.getId(), ip);
     }
 }

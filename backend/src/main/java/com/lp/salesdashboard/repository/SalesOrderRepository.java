@@ -85,24 +85,24 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM OrderItem oi WHERE oi.order IN (SELECT o FROM SalesOrder o WHERE o.userCreated = true)")
+    @Query("DELETE FROM OrderItem oi WHERE oi.order IN (SELECT o FROM SalesOrder o WHERE o.creatorIp IS NOT NULL)")
     int deleteUserCreatedOrderItems();
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM SalesOrder o WHERE o.userCreated = true")
+    @Query("DELETE FROM SalesOrder o WHERE o.creatorIp IS NOT NULL")
     int deleteUserCreatedOrders();
 
-    @Query("SELECT MAX(o.orderDate) FROM SalesOrder o WHERE o.userCreated = false")
+    @Query("SELECT MAX(o.orderDate) FROM SalesOrder o WHERE o.creatorIp IS NULL")
     Optional<LocalDate> findMaxSystemOrderDate();
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM OrderItem oi WHERE oi.order IN (SELECT o FROM SalesOrder o WHERE o.userCreated = false AND o.orderDate < :before)")
+    @Query("DELETE FROM OrderItem oi WHERE oi.order IN (SELECT o FROM SalesOrder o WHERE o.creatorIp IS NULL AND o.orderDate < :before)")
     int deleteOldSystemOrderItems(@Param("before") LocalDate before);
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM SalesOrder o WHERE o.userCreated = false AND o.orderDate < :before")
+    @Query("DELETE FROM SalesOrder o WHERE o.creatorIp IS NULL AND o.orderDate < :before")
     int deleteOldSystemOrders(@Param("before") LocalDate before);
 }

@@ -77,7 +77,7 @@ public class DataMaintenanceService {
     }
 
     private void generateOrders(LocalDate from, LocalDate to) {
-        List<Customer> customers = customerRepository.findAllByUserCreatedFalse();
+        List<Customer> customers = customerRepository.findAllByCreatorIpIsNull();
         List<Product>  products  = productRepository.findAllByUserCreatedFalse();
 
         if (customers.isEmpty() || products.isEmpty()) {
@@ -120,7 +120,7 @@ public class DataMaintenanceService {
         order.setPaymentMethod(PAYMENT_METHODS[random.nextInt(PAYMENT_METHODS.length)]);
         BigDecimal shipping = SHIPPING[random.nextInt(SHIPPING.length)];
         order.setShippingAmount(shipping);
-        order.setUserCreated(false);
+
 
         addItem(order, products);
         if (random.nextDouble() < 0.6) addItem(order, products);
