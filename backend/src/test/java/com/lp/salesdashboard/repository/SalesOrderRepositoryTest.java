@@ -6,6 +6,7 @@ import com.lp.salesdashboard.entity.Customer;
 import com.lp.salesdashboard.entity.OrderStatus;
 import com.lp.salesdashboard.entity.SalesOrder;
 import com.lp.salesdashboard.projection.DailyOrderCountProjection;
+import com.lp.salesdashboard.specification.OrderSpecifications;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,14 +98,44 @@ class SalesOrderRepositoryTest {
         assertThat(rows).hasSize(2);
     }
 
+    @Test
+    void visibleToIp_seedOrdersAreVisibleFromAnyIp() {
+        // @BeforeEach persists 3 orders with creatorIp=null (seed)
+        var results = repo.findAll(OrderSpecifications.visibleToIp("1.2.3.4"));
+        assertThat(results).hasSize(3);
+    }
+
+    @Test
+    void visibleToIp_includesOwnOrders() {
+        persistWithIp(LocalDate.now(), "50.00", "1.2.3.4");
+        em.flush();
+
+        var results = repo.findAll(OrderSpecifications.visibleToIp("1.2.3.4"));
+        assertThat(results).hasSize(4); // 3 seeds + 1 own
+    }
+
+    @Test
+    void visibleToIp_excludesOtherIpOrders() {
+        persistWithIp(LocalDate.now(), "50.00", "5.6.7.8");
+        em.flush();
+
+        var results = repo.findAll(OrderSpecifications.visibleToIp("1.2.3.4"));
+        assertThat(results).hasSize(3); // 3 seeds, the 5.6.7.8 order is excluded
+    }
+
     // -------------------------------------------------------------------------
 
     private void persist(LocalDate date, String amount) {
+        persistWithIp(date, amount, null);
+    }
+
+    private void persistWithIp(LocalDate date, String amount, String creatorIp) {
         SalesOrder order = new SalesOrder();
         order.setOrderDate(date);
         order.setTotalAmount(new BigDecimal(amount));
         order.setCustomer(customer);
         order.setStatus(OrderStatus.DELIVERED);
+        order.setCreatorIp(creatorIp);
         em.persist(order);
     }
 }

@@ -86,4 +86,37 @@ class OrderServiceTest {
 
         verify(orderRepo).save(argThat(o -> o.getCreatorIp() != null));
     }
+
+    @Test
+    void getOrder_returnsSeedOrder_forAnyIp() {
+        SalesOrder seed = orderWithIp(null);
+        given(orderRepo.findWithItemsById(1L)).willReturn(Optional.of(seed));
+
+        assertThat(service.getOrder(1L, "any-ip")).isSameAs(seed);
+    }
+
+    @Test
+    void getOrder_returnsOrder_whenCreatorIpMatchesRequestIp() {
+        SalesOrder own = orderWithIp("1.2.3.4");
+        given(orderRepo.findWithItemsById(2L)).willReturn(Optional.of(own));
+
+        assertThat(service.getOrder(2L, "1.2.3.4")).isSameAs(own);
+    }
+
+    @Test
+    void getOrder_throwsNotFound_whenCreatorIpDoesNotMatchRequestIp() {
+        SalesOrder other = orderWithIp("5.6.7.8");
+        given(orderRepo.findWithItemsById(3L)).willReturn(Optional.of(other));
+
+        assertThatThrownBy(() -> service.getOrder(3L, "1.2.3.4"))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+    }
+
+    private static SalesOrder orderWithIp(String creatorIp) {
+        SalesOrder o = new SalesOrder();
+        o.setCreatorIp(creatorIp);
+        return o;
+    }
 }
